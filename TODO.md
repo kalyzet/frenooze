@@ -1,7 +1,7 @@
 # Frenooze — Development TODO
 
 Referensi: `PRD.md` (roadmap §11, acceptance §12), `DESIGN.md`, `ARCHITECTURE.md`
-Status: Fase 0–1 selesai — Fase 2 ditunda
+Status: Fase 1 selesai — Fase 2 ditunda
 
 ## Legend
 
@@ -83,9 +83,10 @@ Status: Fase 0–1 selesai — Fase 2 ditunda
 
 ### Platform (ARCHITECTURE §10)
 
-- [ ] Kotlin: `getDeviceTimezone`, `getUtcOffset`, `getElapsedRealtime`, `getBootCount`
-- [ ] Pigeon/MethodChannel contract
-- [ ] Penanganan kegagalan platform
+- [x] Kotlin: `getDeviceTimezone`, `getElapsedRealtimeMs`, `getBootCount` (di `AndroidPlatformApiImpl.kt`)
+- [x] Pigeon contract (`pigeons/android_platform_api.dart`) + generated `android_platform_api.g.dart` / `AndroidPlatformApi.g.kt`
+- [x] Wiring di `MainActivity.kt` (register `AndroidPlatformApi`)
+- [-] Penanganan kegagalan platform (try/catch di Kotlin, PlatformException di Dart) — dasar saja
 
 ### Presentation
 
