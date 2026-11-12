@@ -1,7 +1,7 @@
 # Frenooze — Development TODO
 
 Referensi: `PRD.md` (roadmap §11, acceptance §12), `DESIGN.md`, `ARCHITECTURE.md`
-Status: Fase 6 selesai (code) — uji device menunggu HP tersambung; siap Fase 7
+Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasang & berjalan di device 22071219CG; uji E2E menunggu HP dibuka
 
 ## Legend
 
@@ -180,11 +180,13 @@ Status: Fase 6 selesai (code) — uji device menunggu HP tersambung; siap Fase 7
 
 ### Unit
 
-- [ ] Durasi, validasi sesi, state, statistik, timezone, validasi impor, duplikat
+- [x] Durasi, validasi sesi, state, statistik, timezone, validasi impor, duplikat
 
 ### Widget
 
 - [ ] Dashboard, card, sesi aktif, wake-up, riwayat, statistik, form edit
+  - Sudah: dashboard (`widget_test`), navigasi tab + riwayat + statistik + settings (`widget_navigation_test`)
+  - Belum: wake-up overlay & form edit (ditunda — `bloc_test` konflik resolver)
 
 ### Integration
 
@@ -212,3 +214,4 @@ Status: Fase 6 selesai (code) — uji device menunggu HP tersambung; siap Fase 7
 | 2026-11-12 | 4 | History & Editing code selesai: HistoryBloc (list/detail/edit/delete), list+detail+form edit (WIB/WITA/WIT, validasi end>start), delete+konfirmasi, incomplete status "Berlangsung". Analyze bersih, test lulus, APK terbangun. |
 | 2026-11-12 | 5 | Statistics code selesai: StatisticsCalculator (circular mean, exclude invalid/active), GetSleepStatistics, StatisticsBloc, UI fl_chart + metrik + range 7/30/90/all + empty state, wiring refresh saat selesai. Analyze bersih, test lulus, APK terbangun. |
 | 2026-11-12 | 6 | Export & Import code selesai: BackupJsonCodec v1 + BackupCsvCodec, Export/Preview/Apply use cases, DataManagementBloc, Settings UI (save/share, preview dialog merge/replace), wiring refresh History+Statistics saat import. Analyze bersih, test lulus, APK terbangun. |
+| 2026-11-12 | 7 | Fase 7 berjalan: unit test (12 file: durasi, start/end, statistik, timezone, codec JSON/CSV, export/import) + widget test (dashboard, navigasi 4 tab, riwayat, statistik) lulus; `flutter analyze` bersih; app icon dari `doksli/icons/icon.png` via flutter_launcher_icons; APK debug terpasang & jalan di device 22071219CG (tidak ada crash). Sisa: E2E device (butuh layar HP terbuka + izin input injection MIUI), integration test, release build. |
