@@ -6,6 +6,11 @@ import 'core/database/app_database.dart';
 import 'core/platform/android_device_time_provider.dart';
 import 'core/platform/android_platform_api.g.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'features/data_management/data/repositories/data_management_repository_impl.dart';
+import 'features/data_management/domain/usecases/apply_sleep_data_import.dart';
+import 'features/data_management/domain/usecases/export_sleep_data.dart';
+import 'features/data_management/domain/usecases/preview_sleep_data_import.dart';
+import 'features/data_management/presentation/bloc/data_management_bloc.dart';
 import 'features/sleep_history/presentation/bloc/history_bloc.dart';
 import 'features/sleep_session/data/datasources/sleep_session_local_datasource.dart';
 import 'features/sleep_session/data/repositories/sleep_session_repository_impl.dart';
@@ -83,6 +88,18 @@ void main() {
     getSleepStatistics: GetSleepStatistics(repository: repository),
   );
 
+  final DataManagementRepositoryImpl dataManagementRepository =
+      DataManagementRepositoryImpl(database);
+  final DataManagementBloc dataManagementBloc = DataManagementBloc(
+    exportSleepData: ExportSleepData(repository: repository),
+    previewSleepDataImport: PreviewSleepDataImport(
+      repository: dataManagementRepository,
+    ),
+    applySleepDataImport: ApplySleepDataImport(
+      repository: dataManagementRepository,
+    ),
+  );
+
   runApp(
     FrenoozeApp(
       themeModeController: ThemeModeController(),
@@ -90,6 +107,7 @@ void main() {
       wakeUpBloc: wakeUpBloc,
       historyBloc: historyBloc,
       statisticsBloc: statisticsBloc,
+      dataManagementBloc: dataManagementBloc,
     ),
   );
 }

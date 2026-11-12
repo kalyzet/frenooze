@@ -3,6 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frenooze/app.dart';
 import 'package:frenooze/core/platform/device_time_provider.dart';
 import 'package:frenooze/core/theme/theme_mode_controller.dart';
+import 'package:frenooze/features/data_management/domain/repositories/data_management_repository.dart';
+import 'package:frenooze/features/data_management/domain/usecases/apply_sleep_data_import.dart';
+import 'package:frenooze/features/data_management/domain/usecases/export_sleep_data.dart';
+import 'package:frenooze/features/data_management/domain/usecases/preview_sleep_data_import.dart';
+import 'package:frenooze/features/data_management/presentation/bloc/data_management_bloc.dart';
 import 'package:frenooze/features/sleep_history/presentation/bloc/history_bloc.dart';
 import 'package:frenooze/features/sleep_session/domain/entities/sleep_session.dart';
 import 'package:frenooze/features/sleep_session/domain/repositories/sleep_session_repository.dart';
@@ -81,6 +86,23 @@ class _FakeWakeUpHardware implements WakeUpHardware {
   Future<void> releaseScreenOn() async {}
 }
 
+class _FakeDataManagementRepository implements DataManagementRepository {
+  @override
+  Future<List<SleepSession>> getAllSessions() async => <SleepSession>[];
+
+  @override
+  Future<String?> getActiveSessionId() async => null;
+
+  @override
+  Future<Set<String>> getExistingIds() async => <String>{};
+
+  @override
+  Future<void> replaceAll(List<SleepSession> sessions) async {}
+
+  @override
+  Future<int> insertMissing(List<SleepSession> sessions) async => 0;
+}
+
 void main() {
   testWidgets('Dashboard renders sleep action card', (
     WidgetTester tester,
@@ -137,6 +159,19 @@ void main() {
     );
     addTearDown(statisticsBloc.close);
 
+    // Minimal DataManagementBloc for shell wiring; export/import paths are
+    // exercised separately from this dashboard smoke test.
+    final DataManagementBloc dataManagementBloc = DataManagementBloc(
+      exportSleepData: ExportSleepData(repository: historyRepo),
+      previewSleepDataImport: PreviewSleepDataImport(
+        repository: _FakeDataManagementRepository(),
+      ),
+      applySleepDataImport: ApplySleepDataImport(
+        repository: _FakeDataManagementRepository(),
+      ),
+    );
+    addTearDown(dataManagementBloc.close);
+
     await tester.pumpWidget(
       FrenoozeApp(
         themeModeController: ThemeModeController(),
@@ -144,6 +179,7 @@ void main() {
         wakeUpBloc: wakeBloc,
         historyBloc: historyBloc,
         statisticsBloc: statisticsBloc,
+        dataManagementBloc: dataManagementBloc,
       ),
     );
     await tester.pumpAndSettle();

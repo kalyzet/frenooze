@@ -1,7 +1,7 @@
 # Frenooze — Development TODO
 
 Referensi: `PRD.md` (roadmap §11, acceptance §12), `DESIGN.md`, `ARCHITECTURE.md`
-Status: Fase 5 selesai (code) — uji device menunggu HP tersambung; siap Fase 6
+Status: Fase 6 selesai (code) — uji device menunggu HP tersambung; siap Fase 7
 
 ## Legend
 
@@ -164,13 +164,15 @@ Status: Fase 5 selesai (code) — uji device menunggu HP tersambung; siap Fase 6
 
 ## Fase 6 — Export & Import (PRD §11 Phase 6)
 
-- [ ] JSON export (`backup_version: 1`)
-- [ ] CSV export
-- [ ] JSON import: validasi struktur/tipe/timestamp/timezone
-- [ ] Deteksi duplikat
-- [ ] Preview + ringkasan
-- [ ] Merge/Replace transaksional
-- [ ] Proteksi data existing
+- [x] JSON export (`backup_version: 1`)
+- [x] CSV export
+- [x] JSON import: validasi struktur/tipe/timestamp/timezone
+- [x] Deteksi duplikat
+- [x] Preview + ringkasan
+- [x] Merge/Replace transaksional
+- [x] Proteksi data existing
+
+**Status:** code selesai — `flutter analyze` bersih, `flutter test` lulus, APK debug terbangun. Uji device menunggu HP tersambung.
 
 ---
 
@@ -209,3 +211,4 @@ Status: Fase 5 selesai (code) — uji device menunggu HP tersambung; siap Fase 6
 | 2026-11-12 | 3 | Wake-up Mode code selesai: Pigeon vibrasi/screen, WakeUpBloc+persist single-row, overlay UI, restore saat launch. Analyze bersih, test lulus, APK terbangun. Uji device menunggu HP. |
 | 2026-11-12 | 4 | History & Editing code selesai: HistoryBloc (list/detail/edit/delete), list+detail+form edit (WIB/WITA/WIT, validasi end>start), delete+konfirmasi, incomplete status "Berlangsung". Analyze bersih, test lulus, APK terbangun. |
 | 2026-11-12 | 5 | Statistics code selesai: StatisticsCalculator (circular mean, exclude invalid/active), GetSleepStatistics, StatisticsBloc, UI fl_chart + metrik + range 7/30/90/all + empty state, wiring refresh saat selesai. Analyze bersih, test lulus, APK terbangun. |
+| 2026-11-12 | 6 | Export & Import code selesai: BackupJsonCodec v1 + BackupCsvCodec, Export/Preview/Apply use cases, DataManagementBloc, Settings UI (save/share, preview dialog merge/replace), wiring refresh History+Statistics saat import. Analyze bersih, test lulus, APK terbangun. |

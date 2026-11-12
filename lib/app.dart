@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/routing/app_shell.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'features/data_management/presentation/bloc/data_management_bloc.dart';
 import 'features/sleep_history/presentation/bloc/history_bloc.dart';
 import 'features/sleep_session/presentation/bloc/sleep_session_bloc.dart';
 import 'features/statistics/presentation/bloc/statistics_bloc.dart';
@@ -18,6 +19,7 @@ class FrenoozeApp extends StatelessWidget {
     required this.wakeUpBloc,
     required this.historyBloc,
     required this.statisticsBloc,
+    required this.dataManagementBloc,
   });
 
   final ThemeModeController themeModeController;
@@ -25,6 +27,7 @@ class FrenoozeApp extends StatelessWidget {
   final WakeUpBloc wakeUpBloc;
   final HistoryBloc historyBloc;
   final StatisticsBloc statisticsBloc;
+  final DataManagementBloc dataManagementBloc;
 
   /// The design mode follows application state, never the clock
   /// (DESIGN §3): sleeping is the Sleep Experience, a finished session
@@ -58,6 +61,17 @@ class FrenoozeApp extends StatelessWidget {
     }
   }
 
+  /// After a successful import, reload derived views (ARCHITECTURE §6.6).
+  void _onDataManagementState(
+    BuildContext context,
+    DataManagementState state,
+  ) {
+    if (state is DataManagementImportSuccess) {
+      context.read<HistoryBloc>().add(const RefreshHistoryRequested());
+      context.read<StatisticsBloc>().add(const RefreshStatisticsRequested());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SleepSessionBloc>.value(
@@ -68,62 +82,71 @@ class FrenoozeApp extends StatelessWidget {
           value: historyBloc,
           child: BlocProvider<StatisticsBloc>.value(
             value: statisticsBloc,
-            child: MultiBlocListener(
-              listeners: <BlocListener<dynamic, dynamic>>[
-                BlocListener<SleepSessionBloc, SleepSessionState>(
-                  listener: _onSleepSessionState,
-                ),
-                // Failures surface here because the Wake-up page is not
-                // mounted in the Failure state.
-                BlocListener<WakeUpBloc, WakeUpState>(
-                  listener: (BuildContext context, WakeUpState state) {
-                    if (state is WakeUpFailure) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.message)),
-                      );
-                    }
-                  },
-                ),
-              ],
-              child: ValueListenableBuilder<AppDesignMode>(
-                valueListenable: themeModeController,
-                builder:
-                    (
-                      BuildContext context,
-                      AppDesignMode mode,
-                      Widget? child,
-                    ) {
-                      return MaterialApp(
-                        title: 'Frenooze',
-                        debugShowCheckedModeBanner: false,
-                        theme: mode == AppDesignMode.sleep
-                            ? AppTheme.sleep()
-                            : AppTheme.wake(),
-                        home: Stack(
-                          children: <Widget>[
-                            const AppShell(),
-                            // Full-screen overlay above the shell so the
-                            // bottom navigation cannot dismiss the mode by
-                            // accident (PRD §4.4.3).
-                            BlocBuilder<WakeUpBloc, WakeUpState>(
-                              builder:
-                                  (BuildContext context, WakeUpState state) {
-                                    final bool visible =
-                                        state is WakeUpActivating ||
-                                        state is WakeUpActive ||
-                                        state is WakeUpClosing;
-                                    if (!visible) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    return const Positioned.fill(
-                                      child: WakeUpPage(),
-                                    );
-                                  },
-                            ),
-                          ],
-                        ),
-                      );
+            child: BlocProvider<DataManagementBloc>.value(
+              value: dataManagementBloc,
+              child: MultiBlocListener(
+                listeners: <BlocListener<dynamic, dynamic>>[
+                  BlocListener<SleepSessionBloc, SleepSessionState>(
+                    listener: _onSleepSessionState,
+                  ),
+                  BlocListener<DataManagementBloc, DataManagementState>(
+                    listener: _onDataManagementState,
+                  ),
+                  // Failures surface here because the Wake-up page is not
+                  // mounted in the Failure state.
+                  BlocListener<WakeUpBloc, WakeUpState>(
+                    listener: (BuildContext context, WakeUpState state) {
+                      if (state is WakeUpFailure) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(state.message)),
+                        );
+                      }
                     },
+                  ),
+                ],
+                child: ValueListenableBuilder<AppDesignMode>(
+                  valueListenable: themeModeController,
+                  builder:
+                      (
+                        BuildContext context,
+                        AppDesignMode mode,
+                        Widget? child,
+                      ) {
+                        return MaterialApp(
+                          title: 'Frenooze',
+                          debugShowCheckedModeBanner: false,
+                          theme: mode == AppDesignMode.sleep
+                              ? AppTheme.sleep()
+                              : AppTheme.wake(),
+                          home: Stack(
+                            children: <Widget>[
+                              const AppShell(),
+                              // Full-screen overlay above the shell so the
+                              // bottom navigation cannot dismiss the mode by
+                              // accident (PRD §4.4.3).
+                              BlocBuilder<WakeUpBloc, WakeUpState>(
+                                builder:
+                                    (
+                                      BuildContext context,
+                                      WakeUpState state,
+                                    ) {
+                                      final bool visible =
+                                          state is WakeUpActivating ||
+                                          state is WakeUpActive ||
+                                          state is WakeUpClosing;
+                                      if (!visible) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      return const Positioned.fill(
+                                        child: WakeUpPage(),
+                                      );
+                                    },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                ),
               ),
             ),
           ),
