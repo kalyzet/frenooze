@@ -6,6 +6,7 @@ import 'tables/sleep_sessions.dart';
 import 'tables/wake_up_state.dart';
 
 export 'tables/sleep_sessions.dart';
+export 'tables/wake_up_state.dart';
 
 part 'app_database.g.dart';
 

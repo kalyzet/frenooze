@@ -243,4 +243,83 @@ class AndroidPlatformApi {
     ;
     return pigeonVar_replyValue! as int;
   }
+
+  /// Starts the repeating wake-up vibration pattern (PRD §4.4.2).
+  ///
+  /// No-op when the device has no vibrator. The pattern runs until
+  /// [stopVibration] or process death.
+  Future<void> startVibration() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.com.kalyzet.frenooze.AndroidPlatformApi.startVibration$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Stops every active vibration sequence immediately.
+  Future<void> stopVibration() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.com.kalyzet.frenooze.AndroidPlatformApi.stopVibration$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Keeps the screen awake while Wake-up Mode is visible (PRD §4.4.3).
+  Future<void> keepScreenOn() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.com.kalyzet.frenooze.AndroidPlatformApi.keepScreenOn$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Releases the keep-screen-on flag.
+  Future<void> releaseScreenOn() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.com.kalyzet.frenooze.AndroidPlatformApi.releaseScreenOn$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
 }

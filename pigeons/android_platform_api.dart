@@ -22,4 +22,19 @@ abstract class AndroidPlatformApi {
   int getElapsedRealtimeMs();
 
   int getBootCount();
+
+  /// Starts the repeating wake-up vibration pattern (PRD §4.4.2).
+  ///
+  /// No-op when the device has no vibrator. The pattern runs until
+  /// [stopVibration] or process death.
+  void startVibration();
+
+  /// Stops every active vibration sequence immediately.
+  void stopVibration();
+
+  /// Keeps the screen awake while Wake-up Mode is visible (PRD §4.4.3).
+  void keepScreenOn();
+
+  /// Releases the keep-screen-on flag.
+  void releaseScreenOn();
 }

@@ -15,6 +15,13 @@ import 'features/sleep_session/domain/usecases/recover_active_session.dart';
 import 'features/sleep_session/domain/usecases/start_sleep_session.dart';
 import 'features/sleep_session/domain/usecases/update_sleep_session.dart';
 import 'features/sleep_session/presentation/bloc/sleep_session_bloc.dart';
+import 'features/wake_up/data/datasources/wake_up_local_datasource.dart';
+import 'features/wake_up/data/platform/pigeon_wake_up_hardware.dart';
+import 'features/wake_up/data/repositories/wake_up_repository_impl.dart';
+import 'features/wake_up/domain/usecases/activate_wake_up_mode.dart';
+import 'features/wake_up/domain/usecases/close_wake_up_mode.dart';
+import 'features/wake_up/domain/usecases/restore_wake_up_state.dart';
+import 'features/wake_up/presentation/bloc/wake_up_bloc.dart';
 
 void main() {
   tzdata.initializeTimeZones();
@@ -43,10 +50,28 @@ void main() {
     recoverActiveSession: RecoverActiveSession(repository: repository),
   );
 
+  final WakeUpRepositoryImpl wakeUpRepository = WakeUpRepositoryImpl(
+    WakeUpLocalDataSource(database),
+  );
+  final WakeUpBloc wakeUpBloc = WakeUpBloc(
+    activateWakeUpMode: ActivateWakeUpMode(
+      repository: wakeUpRepository,
+      hardware: PigeonWakeUpHardware(platformApi),
+    ),
+    closeWakeUpMode: CloseWakeUpMode(
+      repository: wakeUpRepository,
+      hardware: PigeonWakeUpHardware(platformApi),
+    ),
+    restoreWakeUpState: RestoreWakeUpState(repository: wakeUpRepository),
+  );
+  // Re-open an interrupted Wake-up Mode before the first frame (PRD §7.3).
+  wakeUpBloc.add(const RestoreWakeUpRequested());
+
   runApp(
     FrenoozeApp(
       themeModeController: ThemeModeController(),
       sleepSessionBloc: sleepSessionBloc,
+      wakeUpBloc: wakeUpBloc,
     ),
   );
 }

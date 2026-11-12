@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for Wake-up Mode vibration (PRD §4.4.2). -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <application
         android:label="frenooze"
         android:name="${applicationName}"

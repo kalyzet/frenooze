@@ -1,7 +1,7 @@
 # Frenooze — Development TODO
 
 Referensi: `PRD.md` (roadmap §11, acceptance §12), `DESIGN.md`, `ARCHITECTURE.md`
-Status: Fase 2 selesai — siap Fase 3
+Status: Fase 3 selesai (code) — uji device menunggu HP tersambung; siap Fase 4
 
 ## Legend
 
@@ -106,14 +106,34 @@ Status: Fase 2 selesai — siap Fase 3
 
 ## Fase 3 — Wake-up Mode (PRD §11 Phase 3)
 
-- [ ] Kotlin `VibrationHandler` (`VibratorManager`/`Vibrator`/`VibrationEffect`)
-- [ ] Pola getaran + repeat via API (bukan loop Dart)
-- [ ] `keepScreenOn` / `releaseScreenOn`
-- [ ] `WakeUpBloc` + persistence `wake_up_state`
-- [ ] UI Wake Experience
-- [ ] Tombol close idempoten
-- [ ] Urutan: simpan sesi → aktifkan mode → getaran
-- [ ] Uji lifecycle/background
+### Platform (Kotlin / Pigeon)
+
+- [x] Vibrasi via `AndroidPlatformApiImpl` (`VibratorManager` API 31+ / `Vibrator`, `VibrationEffect.createWaveform` repeat — hardware-driven, bukan loop Dart)
+- [x] Pola getaran burst-with-pause (PRD §4.4.2)
+- [x] `keepScreenOn` / `releaseScreenOn` (FLAG_KEEP_SCREEN_ON via Activity; cleanup di `onDestroy`)
+- [x] Izin `android.permission.VIBRATE` di `AndroidManifest.xml`
+- [x] Pigeon: `startVibration`, `stopVibration`, `keepScreenOn`, `releaseScreenOn` + regenerasi `.g.dart`/`.g.kt`
+
+### Domain & Data
+
+- [x] Entity `WakeUpStatus`, repository contract, `WakeUpHardware` port
+- [x] Use cases: `ActivateWakeUpMode`, `CloseWakeUpMode`, `RestoreWakeUpState`
+- [x] DataSource Drift single-row (id=1 upsert) + repository impl
+
+### Presentation
+
+- [x] `WakeUpBloc` (event `ActivateWakeUpRequested`/`CloseWakeUpRequested`/`RestoreWakeUpRequested`; state Initial/Inactive/Activating/Active/Closing/Failure)
+- [x] Coordination: `SleepSessionSuccess(completed)` → activate (bloc tidak saling panggil; sesi tersimpan dulu — PRD §4.3)
+- [x] UI Wake Experience (greeting, ringkasan, indikator getaran, close kecil) sebagai overlay penuh di atas shell
+- [x] Tombol close idempoten; restore status aktif saat app dibuka (`RestoreWakeUpRequested` di `main()`)
+
+### Verifikasi
+
+- [x] `flutter analyze` bersih
+- [x] `flutter test` lulus
+- [x] `flutter build apk --debug --target-platform android-arm64` sukses
+- [ ] Uji lifecycle/background (getaran saat minimize, restore setelah kill) — menunggu device
+- [ ] Uji end-to-end di device fisik (urutan simpan → aktif → getaran → close)
 
 ---
 
@@ -182,3 +202,4 @@ Status: Fase 2 selesai — siap Fase 3
 | Tanggal | Fase | Catatan |
 | ------- | ---- | ------- |
 | 2026-11-12 | 2 | Domain+data+bloc+dashboard selesai; analyze bersih, test lulus, APK debug terbangun. Menunggu device fisik untuk uji end-to-end. |
+| 2026-11-12 | 3 | Wake-up Mode code selesai: Pigeon vibrasi/screen, WakeUpBloc+persist single-row, overlay UI, restore saat launch. Analyze bersih, test lulus, APK terbangun. Uji device menunggu HP. |

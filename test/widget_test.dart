@@ -12,6 +12,13 @@ import 'package:frenooze/features/sleep_session/domain/usecases/recover_active_s
 import 'package:frenooze/features/sleep_session/domain/usecases/start_sleep_session.dart';
 import 'package:frenooze/features/sleep_session/domain/usecases/update_sleep_session.dart';
 import 'package:frenooze/features/sleep_session/presentation/bloc/sleep_session_bloc.dart';
+import 'package:frenooze/features/wake_up/domain/entities/wake_up_status.dart';
+import 'package:frenooze/features/wake_up/domain/repositories/wake_up_repository.dart';
+import 'package:frenooze/features/wake_up/domain/services/wake_up_hardware.dart';
+import 'package:frenooze/features/wake_up/domain/usecases/activate_wake_up_mode.dart';
+import 'package:frenooze/features/wake_up/domain/usecases/close_wake_up_mode.dart';
+import 'package:frenooze/features/wake_up/domain/usecases/restore_wake_up_state.dart';
+import 'package:frenooze/features/wake_up/presentation/bloc/wake_up_bloc.dart';
 
 class _FakeSleepSessionRepository implements SleepSessionRepository {
   @override
@@ -38,11 +45,42 @@ class _FakeDeviceTimeProvider implements DeviceTimeProvider {
   Future<DeviceTimeSnapshot> capture() async => throw UnimplementedError();
 }
 
+class _FakeWakeUpRepository implements WakeUpRepository {
+  @override
+  Future<WakeUpStatus> getActive() async => WakeUpStatus.inactive();
+
+  @override
+  Future<WakeUpStatus> markActive(String relatedSessionId) async =>
+      WakeUpStatus(
+        isActive: true,
+        activatedAtUtc: DateTime.utc(2026),
+        relatedSessionId: relatedSessionId,
+        updatedAtUtc: DateTime.utc(2026),
+      );
+
+  @override
+  Future<WakeUpStatus> markInactive() async => WakeUpStatus.inactive();
+}
+
+class _FakeWakeUpHardware implements WakeUpHardware {
+  @override
+  Future<void> startVibration() async {}
+
+  @override
+  Future<void> stopVibration() async {}
+
+  @override
+  Future<void> keepScreenOn() async {}
+
+  @override
+  Future<void> releaseScreenOn() async {}
+}
+
 void main() {
   testWidgets('Dashboard renders sleep action card', (
     WidgetTester tester,
   ) async {
-    final SleepSessionBloc bloc = SleepSessionBloc(
+    final SleepSessionBloc sleepBloc = SleepSessionBloc(
       startSleepSession: StartSleepSession(
         repository: _FakeSleepSessionRepository(),
         timeProvider: _FakeDeviceTimeProvider(),
@@ -64,12 +102,27 @@ void main() {
         repository: _FakeSleepSessionRepository(),
       ),
     );
-    addTearDown(bloc.close);
+    addTearDown(sleepBloc.close);
+
+    final _FakeWakeUpRepository wakeRepo = _FakeWakeUpRepository();
+    final WakeUpBloc wakeBloc = WakeUpBloc(
+      activateWakeUpMode: ActivateWakeUpMode(
+        repository: wakeRepo,
+        hardware: _FakeWakeUpHardware(),
+      ),
+      closeWakeUpMode: CloseWakeUpMode(
+        repository: wakeRepo,
+        hardware: _FakeWakeUpHardware(),
+      ),
+      restoreWakeUpState: RestoreWakeUpState(repository: wakeRepo),
+    );
+    addTearDown(wakeBloc.close);
 
     await tester.pumpWidget(
       FrenoozeApp(
         themeModeController: ThemeModeController(),
-        sleepSessionBloc: bloc,
+        sleepSessionBloc: sleepBloc,
+        wakeUpBloc: wakeBloc,
       ),
     );
     await tester.pumpAndSettle();

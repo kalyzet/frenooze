@@ -259,6 +259,19 @@ interface AndroidPlatformApi {
   fun getDeviceTimezone(): DeviceTimezone
   fun getElapsedRealtimeMs(): Long
   fun getBootCount(): Long
+  /**
+   * Starts the repeating wake-up vibration pattern (PRD §4.4.2).
+   *
+   * No-op when the device has no vibrator. The pattern runs until
+   * [stopVibration] or process death.
+   */
+  fun startVibration()
+  /** Stops every active vibration sequence immediately. */
+  fun stopVibration()
+  /** Keeps the screen awake while Wake-up Mode is visible (PRD §4.4.3). */
+  fun keepScreenOn()
+  /** Releases the keep-screen-on flag. */
+  fun releaseScreenOn()
 
   companion object {
     /** The codec used by AndroidPlatformApi. */
@@ -305,6 +318,70 @@ interface AndroidPlatformApi {
           channel.setMessageHandler { _, reply ->
             val wrapped: List<Any?> = try {
               listOf(api.getBootCount())
+            } catch (exception: Throwable) {
+              AndroidPlatformApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.com.kalyzet.frenooze.AndroidPlatformApi.startVibration$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.startVibration()
+              listOf(null)
+            } catch (exception: Throwable) {
+              AndroidPlatformApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.com.kalyzet.frenooze.AndroidPlatformApi.stopVibration$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.stopVibration()
+              listOf(null)
+            } catch (exception: Throwable) {
+              AndroidPlatformApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.com.kalyzet.frenooze.AndroidPlatformApi.keepScreenOn$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.keepScreenOn()
+              listOf(null)
+            } catch (exception: Throwable) {
+              AndroidPlatformApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.com.kalyzet.frenooze.AndroidPlatformApi.releaseScreenOn$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.releaseScreenOn()
+              listOf(null)
             } catch (exception: Throwable) {
               AndroidPlatformApiPigeonUtils.wrapError(exception)
             }
