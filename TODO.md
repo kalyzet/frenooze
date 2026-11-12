@@ -1,7 +1,7 @@
 # Frenooze — Development TODO
 
 Referensi: `PRD.md` (roadmap §11, acceptance §12), `DESIGN.md`, `ARCHITECTURE.md`
-Status: Fase 1 selesai — Fase 2 ditunda
+Status: Fase 2 selesai — siap Fase 3
 
 ## Legend
 
@@ -70,16 +70,16 @@ Status: Fase 1 selesai — Fase 2 ditunda
 
 ### Domain
 
-- [ ] Entity `SleepSession`
-- [ ] Repository contract
-- [ ] Use cases: `StartSleepSession`, `EndSleepSession`, `GetActiveSleepSession`, `GetSleepSessionById`, `GetSleepSessions`, `UpdateSleepSession`, `DeleteSleepSession`, `RecoverActiveSession`
-- [ ] Aturan single active session (logic + DB)
-- [ ] Kalkulasi durasi dari timestamp (bukan timer)
+- [x] Entity `SleepSession`
+- [x] Repository contract
+- [x] Use cases: `StartSleepSession`, `EndSleepSession`, `GetActiveSleepSession`, `GetSleepSessionById`, `GetSleepSessions`, `UpdateSleepSession`, `DeleteSleepSession`, `RecoverActiveSession`
+- [x] Aturan single active session (logic + DB)
+- [x] Kalkulasi durasi dari timestamp (bukan timer)
 
 ### Data
 
-- [ ] Repository impl + mapper
-- [ ] DataSource Drift
+- [x] Repository impl + mapper
+- [x] DataSource Drift
 
 ### Platform (ARCHITECTURE §10)
 
@@ -90,10 +90,17 @@ Status: Fase 1 selesai — Fase 2 ditunda
 
 ### Presentation
 
-- [ ] `SleepSessionBloc` (event/state sesuai ARCHITECTURE §6.1)
-- [ ] State machine `IDLE → READY_TO_SLEEP → SLEEPING → COMPLETED`
-- [ ] Dashboard + Main Sleep Action Card (idle/active)
-- [ ] Recovery saat app dibuka
+- [x] `SleepSessionBloc` (event/state sesuai ARCHITECTURE §6.1)
+- [x] State machine `IDLE → READY_TO_SLEEP → SLEEPING → COMPLETED`
+- [x] Dashboard + Main Sleep Action Card (idle/active)
+- [x] Recovery saat app dibuka
+
+### Verifikasi
+
+- [x] `flutter analyze` bersih
+- [x] `flutter test` lulus (widget test dashboard)
+- [x] `flutter build apk --debug --target-platform android-arm64` sukses
+- [ ] Uji di device fisik (start/end/recovery/theme switch) — menunggu HP tersambung
 
 ---
 
@@ -174,4 +181,4 @@ Status: Fase 1 selesai — Fase 2 ditunda
 
 | Tanggal | Fase | Catatan |
 | ------- | ---- | ------- |
-|         |      |         |
+| 2026-11-12 | 2 | Domain+data+bloc+dashboard selesai; analyze bersih, test lulus, APK debug terbangun. Menunggu device fisik untuk uji end-to-end. |

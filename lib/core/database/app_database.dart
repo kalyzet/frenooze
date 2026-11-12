@@ -5,6 +5,8 @@ import 'tables/app_settings.dart';
 import 'tables/sleep_sessions.dart';
 import 'tables/wake_up_state.dart';
 
+export 'tables/sleep_sessions.dart';
+
 part 'app_database.g.dart';
 
 /// Local SQLite database for Frenooze.
