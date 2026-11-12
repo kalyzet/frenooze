@@ -1,7 +1,7 @@
 # Frenooze — Development TODO
 
 Referensi: `PRD.md` (roadmap §11, acceptance §12), `DESIGN.md`, `ARCHITECTURE.md`
-Status: Fase 3 selesai (code) — uji device menunggu HP tersambung; siap Fase 4
+Status: Fase 4 selesai (code) — uji device menunggu HP tersambung; siap Fase 5
 
 ## Legend
 
@@ -139,12 +139,14 @@ Status: Fase 3 selesai (code) — uji device menunggu HP tersambung; siap Fase 4
 
 ## Fase 4 — History & Editing (PRD §11 Phase 4)
 
-- [ ] History list (Sleep Experience)
-- [ ] Detail sesi
-- [ ] Form edit + validasi (end > start, dsb)
-- [ ] Delete + konfirmasi
-- [ ] Penanda `is_start_manual`/`is_end_manual`
-- [ ] Incomplete session handling
+- [x] History list (Sleep Experience)
+- [x] Detail sesi
+- [x] Form edit + validasi (end > start, dsb)
+- [x] Delete + konfirmasi
+- [x] Penanda `is_start_manual`/`is_end_manual`
+- [x] Incomplete session handling (status "Berlangsung", durasi tidak dihitung)
+
+**Status:** code selesai — `flutter analyze` bersih, `flutter test` lulus, APK debug terbangun. Uji device menunggu HP tersambung.
 
 ---
 
@@ -203,3 +205,4 @@ Status: Fase 3 selesai (code) — uji device menunggu HP tersambung; siap Fase 4
 | ------- | ---- | ------- |
 | 2026-11-12 | 2 | Domain+data+bloc+dashboard selesai; analyze bersih, test lulus, APK debug terbangun. Menunggu device fisik untuk uji end-to-end. |
 | 2026-11-12 | 3 | Wake-up Mode code selesai: Pigeon vibrasi/screen, WakeUpBloc+persist single-row, overlay UI, restore saat launch. Analyze bersih, test lulus, APK terbangun. Uji device menunggu HP. |
+| 2026-11-12 | 4 | History & Editing code selesai: HistoryBloc (list/detail/edit/delete), list+detail+form edit (WIB/WITA/WIT, validasi end>start), delete+konfirmasi, incomplete status "Berlangsung". Analyze bersih, test lulus, APK terbangun. |

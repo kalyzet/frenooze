@@ -3,11 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frenooze/app.dart';
 import 'package:frenooze/core/platform/device_time_provider.dart';
 import 'package:frenooze/core/theme/theme_mode_controller.dart';
+import 'package:frenooze/features/sleep_history/presentation/bloc/history_bloc.dart';
 import 'package:frenooze/features/sleep_session/domain/entities/sleep_session.dart';
 import 'package:frenooze/features/sleep_session/domain/repositories/sleep_session_repository.dart';
 import 'package:frenooze/features/sleep_session/domain/usecases/delete_sleep_session.dart';
 import 'package:frenooze/features/sleep_session/domain/usecases/end_sleep_session.dart';
 import 'package:frenooze/features/sleep_session/domain/usecases/get_active_sleep_session.dart';
+import 'package:frenooze/features/sleep_session/domain/usecases/get_sleep_session_by_id.dart';
+import 'package:frenooze/features/sleep_session/domain/usecases/get_sleep_sessions.dart';
 import 'package:frenooze/features/sleep_session/domain/usecases/recover_active_session.dart';
 import 'package:frenooze/features/sleep_session/domain/usecases/start_sleep_session.dart';
 import 'package:frenooze/features/sleep_session/domain/usecases/update_sleep_session.dart';
@@ -118,11 +121,21 @@ void main() {
     );
     addTearDown(wakeBloc.close);
 
+    final _FakeSleepSessionRepository historyRepo = _FakeSleepSessionRepository();
+    final HistoryBloc historyBloc = HistoryBloc(
+      getSleepSessions: GetSleepSessions(repository: historyRepo),
+      getSleepSessionById: GetSleepSessionById(repository: historyRepo),
+      updateSleepSession: UpdateSleepSession(repository: historyRepo),
+      deleteSleepSession: DeleteSleepSession(repository: historyRepo),
+    );
+    addTearDown(historyBloc.close);
+
     await tester.pumpWidget(
       FrenoozeApp(
         themeModeController: ThemeModeController(),
         sleepSessionBloc: sleepBloc,
         wakeUpBloc: wakeBloc,
+        historyBloc: historyBloc,
       ),
     );
     await tester.pumpAndSettle();

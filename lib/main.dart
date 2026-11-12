@@ -6,11 +6,14 @@ import 'core/database/app_database.dart';
 import 'core/platform/android_device_time_provider.dart';
 import 'core/platform/android_platform_api.g.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'features/sleep_history/presentation/bloc/history_bloc.dart';
 import 'features/sleep_session/data/datasources/sleep_session_local_datasource.dart';
 import 'features/sleep_session/data/repositories/sleep_session_repository_impl.dart';
 import 'features/sleep_session/domain/usecases/delete_sleep_session.dart';
 import 'features/sleep_session/domain/usecases/end_sleep_session.dart';
 import 'features/sleep_session/domain/usecases/get_active_sleep_session.dart';
+import 'features/sleep_session/domain/usecases/get_sleep_session_by_id.dart';
+import 'features/sleep_session/domain/usecases/get_sleep_sessions.dart';
 import 'features/sleep_session/domain/usecases/recover_active_session.dart';
 import 'features/sleep_session/domain/usecases/start_sleep_session.dart';
 import 'features/sleep_session/domain/usecases/update_sleep_session.dart';
@@ -67,11 +70,19 @@ void main() {
   // Re-open an interrupted Wake-up Mode before the first frame (PRD §7.3).
   wakeUpBloc.add(const RestoreWakeUpRequested());
 
+  final HistoryBloc historyBloc = HistoryBloc(
+    getSleepSessions: GetSleepSessions(repository: repository),
+    getSleepSessionById: GetSleepSessionById(repository: repository),
+    updateSleepSession: UpdateSleepSession(repository: repository),
+    deleteSleepSession: DeleteSleepSession(repository: repository),
+  );
+
   runApp(
     FrenoozeApp(
       themeModeController: ThemeModeController(),
       sleepSessionBloc: sleepSessionBloc,
       wakeUpBloc: wakeUpBloc,
+      historyBloc: historyBloc,
     ),
   );
 }
