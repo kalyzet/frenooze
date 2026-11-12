@@ -15,6 +15,8 @@ import 'package:frenooze/features/sleep_session/domain/usecases/recover_active_s
 import 'package:frenooze/features/sleep_session/domain/usecases/start_sleep_session.dart';
 import 'package:frenooze/features/sleep_session/domain/usecases/update_sleep_session.dart';
 import 'package:frenooze/features/sleep_session/presentation/bloc/sleep_session_bloc.dart';
+import 'package:frenooze/features/statistics/domain/usecases/get_sleep_statistics.dart';
+import 'package:frenooze/features/statistics/presentation/bloc/statistics_bloc.dart';
 import 'package:frenooze/features/wake_up/domain/entities/wake_up_status.dart';
 import 'package:frenooze/features/wake_up/domain/repositories/wake_up_repository.dart';
 import 'package:frenooze/features/wake_up/domain/services/wake_up_hardware.dart';
@@ -130,12 +132,18 @@ void main() {
     );
     addTearDown(historyBloc.close);
 
+    final StatisticsBloc statisticsBloc = StatisticsBloc(
+      getSleepStatistics: GetSleepStatistics(repository: historyRepo),
+    );
+    addTearDown(statisticsBloc.close);
+
     await tester.pumpWidget(
       FrenoozeApp(
         themeModeController: ThemeModeController(),
         sleepSessionBloc: sleepBloc,
         wakeUpBloc: wakeBloc,
         historyBloc: historyBloc,
+        statisticsBloc: statisticsBloc,
       ),
     );
     await tester.pumpAndSettle();

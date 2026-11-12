@@ -18,6 +18,8 @@ import 'features/sleep_session/domain/usecases/recover_active_session.dart';
 import 'features/sleep_session/domain/usecases/start_sleep_session.dart';
 import 'features/sleep_session/domain/usecases/update_sleep_session.dart';
 import 'features/sleep_session/presentation/bloc/sleep_session_bloc.dart';
+import 'features/statistics/domain/usecases/get_sleep_statistics.dart';
+import 'features/statistics/presentation/bloc/statistics_bloc.dart';
 import 'features/wake_up/data/datasources/wake_up_local_datasource.dart';
 import 'features/wake_up/data/platform/pigeon_wake_up_hardware.dart';
 import 'features/wake_up/data/repositories/wake_up_repository_impl.dart';
@@ -77,12 +79,17 @@ void main() {
     deleteSleepSession: DeleteSleepSession(repository: repository),
   );
 
+  final StatisticsBloc statisticsBloc = StatisticsBloc(
+    getSleepStatistics: GetSleepStatistics(repository: repository),
+  );
+
   runApp(
     FrenoozeApp(
       themeModeController: ThemeModeController(),
       sleepSessionBloc: sleepSessionBloc,
       wakeUpBloc: wakeUpBloc,
       historyBloc: historyBloc,
+      statisticsBloc: statisticsBloc,
     ),
   );
 }

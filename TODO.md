@@ -1,7 +1,7 @@
 # Frenooze — Development TODO
 
 Referensi: `PRD.md` (roadmap §11, acceptance §12), `DESIGN.md`, `ARCHITECTURE.md`
-Status: Fase 4 selesai (code) — uji device menunggu HP tersambung; siap Fase 5
+Status: Fase 5 selesai (code) — uji device menunggu HP tersambung; siap Fase 6
 
 ## Legend
 
@@ -152,11 +152,13 @@ Status: Fase 4 selesai (code) — uji device menunggu HP tersambung; siap Fase 5
 
 ## Fase 5 — Statistics (PRD §11 Phase 5)
 
-- [ ] Agregasi daily/weekly/monthly
-- [ ] Metrik: avg/total durasi, avg tidur/bangun, longest/shortest, count
-- [ ] `fl_chart` (bar/line)
-- [ ] Exclude sesi invalid (bukan durasi 0)
-- [ ] Range 7/30/90/all + empty state
+- [x] Agregasi daily/weekly/monthly
+- [x] Metrik: avg/total durasi, avg tidur/bangun, longest/shortest, count
+- [x] `fl_chart` (bar/line)
+- [x] Exclude sesi invalid (bukan durasi 0)
+- [x] Range 7/30/90/all + empty state
+
+**Status:** code selesai — `flutter analyze` bersih, `flutter test` lulus, APK debug terbangun. Uji device menunggu HP tersambung.
 
 ---
 
@@ -206,3 +208,4 @@ Status: Fase 4 selesai (code) — uji device menunggu HP tersambung; siap Fase 5
 | 2026-11-12 | 2 | Domain+data+bloc+dashboard selesai; analyze bersih, test lulus, APK debug terbangun. Menunggu device fisik untuk uji end-to-end. |
 | 2026-11-12 | 3 | Wake-up Mode code selesai: Pigeon vibrasi/screen, WakeUpBloc+persist single-row, overlay UI, restore saat launch. Analyze bersih, test lulus, APK terbangun. Uji device menunggu HP. |
 | 2026-11-12 | 4 | History & Editing code selesai: HistoryBloc (list/detail/edit/delete), list+detail+form edit (WIB/WITA/WIT, validasi end>start), delete+konfirmasi, incomplete status "Berlangsung". Analyze bersih, test lulus, APK terbangun. |
+| 2026-11-12 | 5 | Statistics code selesai: StatisticsCalculator (circular mean, exclude invalid/active), GetSleepStatistics, StatisticsBloc, UI fl_chart + metrik + range 7/30/90/all + empty state, wiring refresh saat selesai. Analyze bersih, test lulus, APK terbangun. |
