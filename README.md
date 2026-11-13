@@ -11,8 +11,6 @@
   [![License](https://img.shields.io/badge/License-Private-red)]()
 </div>
 
----
-
 ## 📖 Tentang Frenooze
 
 **Frenooze** adalah aplikasi Android yang dirancang untuk membantu pengguna mencatat, memantau, dan mengelola kebiasaan tidur mereka melalui antarmuka yang sederhana dan praktis.
@@ -27,8 +25,6 @@ Aplikasi ini menggabungkan pencatatan waktu otomatis, pengelolaan riwayat tidur,
 - **Akurasi Waktu**: Mencatat timestamp dan informasi zona waktu secara konsisten
 - **Keandalan Data**: Melindungi catatan tidur dari gangguan aplikasi dan restart perangkat
 - **Kontrol Pengguna**: Pengguna dapat meninjau, mengedit, ekspor, dan impor data mereka
-
----
 
 ## 🎯 Fitur Utama
 
@@ -87,8 +83,6 @@ Aplikasi ini menggabungkan pencatatan waktu otomatis, pengelolaan riwayat tidur,
 - Informasi aplikasi
 - Preferensi tampilan (tema Sleep/Wake)
 
----
-
 ## 🏗️ Arsitektur Aplikasi
 
 Frenooze dibangun menggunakan **Feature-First Architecture** yang dikombinasikan dengan **Clean Architecture** untuk memastikan pemisahan tanggung jawab yang jelas.
@@ -145,8 +139,6 @@ Integrasi Flutter-Android menggunakan **Pigeon** untuk komunikasi yang type-safe
 - LifecycleHandler: Pengelolaan siklus hidup aplikasi
 ```
 
----
-
 ## 🛠️ Teknologi yang Digunakan
 
 ### Framework & Language
@@ -177,8 +169,6 @@ Integrasi Flutter-Android menggunakan **Pigeon** untuk komunikasi yang type-safe
 - **pigeon**: Platform channel code generator
 - **mocktail**: Testing library
 - **flutter_launcher_icons**: Icon generator
-
----
 
 ## 📁 Struktur Proyek
 
@@ -212,15 +202,14 @@ frenooze/
 └── pubspec.yaml                # Dependensi Flutter
 ```
 
----
-
 ## 🚀 Cara Memulai
 
 ### Prasyarat
 
 Pastikan Anda sudah menginstal:
 
-- **Flutter SDK** versi 3.10.4 atau lebih barhttps://github.com/kalyzet/frhttps://github.com/kalyzet/frenooze.giti 3.10.4 atau lebih baru
+- **Flutter SDK** versi 3.10.4 atau lebih baru
+- **Dart SDK** versi 3.10.4 atau lebih baru
 - **Android Studio** atau **VS Code** dengan plugin Flutter
 - **Android SDK** dengan API level 26+ (Android 8.0+)
 
@@ -272,8 +261,6 @@ flutter build apk --release
 flutter build appbundle --release
 ```
 
----
-
 ## 🧪 Testing
 
 ### Menjalankan Unit Tests
@@ -294,8 +281,6 @@ flutter test integration_test/
 flutter test --coverage
 ```
 
----
-
 ## 🎨 Tema Desain
 
 Frenooze menggunakan dua mode desain yang mengikuti status aplikasi:
@@ -314,8 +299,6 @@ Frenooze menggunakan dua mode desain yang mengikuti status aplikasi:
 
 Tema **tidak mengikuti jam**, tetapi **mengikuti status sesi tidur**.
 
----
-
 ## ⏰ Sistem Pengelolaan Waktu
 
 Frenooze menggunakan pendekatan sophisticated untuk pengelolaan waktu:
@@ -333,8 +316,6 @@ Frenooze menggunakan pendekatan sophisticated untuk pengelolaan waktu:
 - **Tahan terhadap perubahan jam manual**: Menggunakan waktu monotonik untuk validasi
 - **Tahan terhadap restart perangkat**: Menyimpan identitas boot untuk deteksi restart
 - **Tidak memerlukan timer background**: Durasi dihitung dari selisih timestamp
-
----
 
 ## 🔋 Efisiensi Baterai
 
@@ -355,8 +336,6 @@ Frenooze dirancang untuk **sangat hemat baterai**:
 - ✅ Menggunakan waktu monotonik untuk validasi
 - ✅ Melepaskan semua resource saat tidak diperlukan
 
----
-
 ## 📊 Statistik dan Privacy
 
 ### Apa yang Dilacak
@@ -374,8 +353,6 @@ Frenooze dirancang untuk **sangat hemat baterai**:
 - **Tidak ada akun**: Tidak perlu registrasi atau login
 - **Kontrol penuh**: Ekspor, hapus, atau edit data kapan saja
 
----
-
 ## 🐛 Known Limitations
 
 1. **Getaran tidak dijamin saat aplikasi ditutup paksa**: Wake-up Mode memerlukan aplikasi aktif
@@ -383,27 +360,28 @@ Frenooze dirancang untuk **sangat hemat baterai**:
 3. **Perangkat tanpa vibrator**: Tidak dapat menggunakan fitur getaran Wake-up Mode
 4. **Background restrictions**: Perilaku dapat berbeda pada produsen perangkat berbeda
 
----
-
 ## 🤝 Kontribusi
 
 Proyek ini masih dalam tahap pengembangan awal. Kontribusi, saran, dan laporan bug sangat dihargai.
 
-###kout -b feature/AmazingFeature`)
-3. Commit perubahan (`git commiman
+### Cara Kontribusi
+
+1. Fork repository
+2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buka Pull Request
+
+### Pedoman
 
 - Ikuti struktur arsitektur yang ada
 - Tulis test untuk fitur baru
 - Update dokumentasi jika diperlukan
 - Gunakan conventional commits
 
----
-
 ## 👨‍💻 Tim Pengembangan
 
 Dikembangkan oleh **Kalyzet**
-
----
 
 ## 🗺️ Roadmap
 
