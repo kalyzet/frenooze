@@ -71,6 +71,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
         AppSpacing.xs,
       ),
       child: SegmentedButton<StatisticsRange>(
+        // No selected icon: the checkmark's icon+padding made the selected
+        // label exceed the per-segment width cap (lebar/4), forcing wraps
+        // like "Sem/ua". The selected fill is the indicator instead.
+        showSelectedIcon: false,
         segments: <ButtonSegment<StatisticsRange>>[
           for (final StatisticsRange range in StatisticsRange.values)
             ButtonSegment<StatisticsRange>(
