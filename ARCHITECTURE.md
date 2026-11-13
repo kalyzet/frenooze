@@ -1469,8 +1469,6 @@ Wake-up Mode menggunakan API getaran Android dengan pengelolaan siklus hidup yan
 
 Seluruh data tidur disimpan secara lokal menggunakan SQLite dan dapat dikelola melalui sistem riwayat, statistik, ekspor, serta impor.
 
-folder service/ pada struktur Android merupakan tempat opsional jika nanti memang dibutuhkan. Jangan membuat layanan latar depan hanya karena sudah tercantum di struktur rancangan.
-
 **Prinsip utama arsitektur Frenooze:**
 
 Bangun aplikasi yang ringan, hemat baterai, konsisten dalam pengelolaan waktu, dapat diandalkan secara offline, dan mudah dikembangkan tanpa mengorbankan fungsi yang sudah berjalan.

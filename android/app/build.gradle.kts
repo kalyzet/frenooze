@@ -51,6 +51,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Sign debug builds with the release key when available so
+            // debug/release can be installed over each other (-r) without
+            // uninstalling and wiping app data.
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+        }
         release {
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")

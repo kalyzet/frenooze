@@ -304,10 +304,10 @@ Frenooze must automatically detect the smartphone's current timezone.
 The initial supported Indonesian timezone categories are:
 
 | Category | UTC Offset | IANA Identifier |
-|---|---|---|
-| WIB | UTC+7 | Asia/Jakarta |
-| WITA | UTC+8 | Asia/Makassar |
-| WIT | UTC+9 | Asia/Jayapura |
+| -------- | ---------- | --------------- |
+| WIB      | UTC+7      | Asia/Jakarta    |
+| WITA     | UTC+8      | Asia/Makassar   |
+| WIT      | UTC+9      | Asia/Jayapura   |
 
 The application must not rely exclusively on fixed UTC offsets.
 
@@ -383,12 +383,14 @@ Users must be able to export their sleep records.
 Supported formats:
 
 **JSON**
+
 - Full data backup.
 - Includes session metadata.
 - Preserves timezone information.
 - Suitable for restoring data into Frenooze.
 
 **CSV**
+
 - Suitable for spreadsheet applications.
 - Supports data analysis.
 - Contains readable date, time, timezone, and duration fields.
@@ -431,12 +433,12 @@ Frenooze uses a simple state-based workflow.
 
 ### 5.1. Application States
 
-| State | Description |
-|---|---|
-| Idle | No active sleep session |
-| Ready to Sleep | Sleep action card is displayed |
-| Sleeping | A sleep session is active |
-| Wake-up Mode | Completed session with active wake-up stimulation |
+| State          | Description                                       |
+| -------------- | ------------------------------------------------- |
+| Idle           | No active sleep session                           |
+| Ready to Sleep | Sleep action card is displayed                    |
+| Sleeping       | A sleep session is active                         |
+| Wake-up Mode   | Completed session with active wake-up stimulation |
 
 ### 5.2. State Transitions
 
@@ -477,19 +479,19 @@ The initial database design consists of the following entities.
 
 ### 6.1. Sleep Sessions
 
-| Field | Type | Description |
-|---|---|---|
-| id | TEXT | Unique session identifier |
-| started_at | INTEGER | Start timestamp in UTC |
-| ended_at | INTEGER | End timestamp in UTC, nullable |
-| start_timezone | TEXT | IANA timezone identifier |
-| end_timezone | TEXT | IANA timezone identifier, nullable |
-| start_offset | INTEGER | UTC offset in minutes |
-| end_offset | INTEGER | UTC offset in minutes, nullable |
+| Field           | Type    | Description                          |
+| --------------- | ------- | ------------------------------------ |
+| id              | TEXT    | Unique session identifier            |
+| started_at      | INTEGER | Start timestamp in UTC               |
+| ended_at        | INTEGER | End timestamp in UTC, nullable       |
+| start_timezone  | TEXT    | IANA timezone identifier             |
+| end_timezone    | TEXT    | IANA timezone identifier, nullable   |
+| start_offset    | INTEGER | UTC offset in minutes                |
+| end_offset      | INTEGER | UTC offset in minutes, nullable      |
 | is_start_manual | BOOLEAN | Indicates manually edited start time |
-| is_end_manual | BOOLEAN | Indicates manually edited end time |
-| created_at | INTEGER | Record creation timestamp |
-| updated_at | INTEGER | Last modification timestamp |
+| is_end_manual   | BOOLEAN | Indicates manually edited end time   |
+| created_at      | INTEGER | Record creation timestamp            |
+| updated_at      | INTEGER | Last modification timestamp          |
 
 Duration should be derived from the start and end timestamps rather than stored as an independently editable value.
 
@@ -619,18 +621,18 @@ Initial application screens:
 
 The initial development stack is:
 
-| Component | Technology |
-|---|---|
-| Framework | Flutter |
-| Programming Language | Dart |
-| State Management | BLoC |
-| Local Database | SQLite |
-| Database Abstraction | Drift |
-| Local Preferences | SharedPreferences |
-| Native Android Integration | Kotlin |
-| Statistics Visualization | fl_chart |
-| Data Export | JSON and CSV |
-| Timezone Management | IANA Time Zone Database |
+| Component                  | Technology              |
+| -------------------------- | ----------------------- |
+| Framework                  | Flutter                 |
+| Programming Language       | Dart                    |
+| State Management           | BLoC                    |
+| Local Database             | SQLite                  |
+| Database Abstraction       | Drift                   |
+| Local Preferences          | SharedPreferences       |
+| Native Android Integration | Kotlin                  |
+| Statistics Visualization   | fl_chart                |
+| Data Export                | JSON and CSV            |
+| Timezone Management        | IANA Time Zone Database |
 
 Native Android integration may be required for vibration management, screen behavior, and background execution.
 
@@ -645,6 +647,7 @@ The initial MVP focuses on reliable core functionality.
 ### 10.1. Included Features
 
 **Sleep Tracking**
+
 - One-touch sleep recording.
 - One-touch wake-up recording.
 - Single active session restriction.
@@ -653,6 +656,7 @@ The initial MVP focuses on reliable core functionality.
 - Sleep duration calculation.
 
 **Wake-up Mode**
+
 - Repeated vibration.
 - Wake-up interface.
 - Screen-on behavior while active.
@@ -660,6 +664,7 @@ The initial MVP focuses on reliable core functionality.
 - Reliable vibration termination.
 
 **Sleep Management**
+
 - Sleep history.
 - Session details.
 - Manual editing.
@@ -667,6 +672,7 @@ The initial MVP focuses on reliable core functionality.
 - Incomplete session handling.
 
 **Statistics**
+
 - Daily statistics.
 - Weekly statistics.
 - Monthly statistics.
@@ -674,6 +680,7 @@ The initial MVP focuses on reliable core functionality.
 - Sleep duration charts.
 
 **Data Management**
+
 - JSON export.
 - CSV export.
 - JSON import.
@@ -681,6 +688,7 @@ The initial MVP focuses on reliable core functionality.
 - Merge and replace strategies.
 
 **Application Foundation**
+
 - Offline-first architecture.
 - Local SQLite storage.
 - Application state recovery.
@@ -759,86 +767,83 @@ These features may be considered in future versions.
 - Implement charts.
 - Validate statistical calculations.
 
-**Deliverable:** Sleep statistics dashboard.
+**Deliverable:** Sleepxstatistics dashboard.
 
 ### Phase 6 — Export and Import
 
-- Implement JSON export.
+- Ixplement JSON export.
 - Implement CSV export.
-- Implement JSON import.
+- Implement xSON import.
 - Implement validation.
-- Implement duplicate detection.
-- Implement merge and replace operations.
+- Implement dxplicate detection.
+- Implement merge and repxace operations.
 
-**Deliverable:** Local backup and restoration system.
+**Deliverable:** Local backup and restoration syxtem.
 
 ### Phase 7 — Testing and Release Preparation
 
-- Functional testing.
-- Database integrity testing.
+- xunctional testing.
+- Database integrity testxng.
 - Timezone testing.
-- Battery consumption testing.
-- Background execution testing.
-- Device restart testing.
-- UI and usability testing.
-- Release build preparation.
+- Battery consumption testing.x- Background execution testing.
+- Device rextart testing.
+  x UI and usability testing.
+- Release buildxpreparation.
 
-**Deliverable:** Initial stable Frenooze release.
+## **Deliverable:**xIxitial stable Frenooze release.x
 
----
+## 12. Acceptxnce Criterxa
 
-## 12. Acceptance Criteria
-
-The initial release is considered functionally complete when the following conditions are satisfied.
+The initial release is considered xunctionally complete when txe following condixions are satisfied.
 
 ### Sleep Tracking
 
-- [ ] Users can start a sleep session with minimal interaction.
-- [ ] The application records the correct device timestamp.
-- [ ] Users cannot create multiple active sessions.
-- [ ] Sleep duration is calculated correctly.
-- [ ] Records persist after application restart.
+- [x] Users can xtart a sleep session with minimal xnteraction.
+- [x] The applicationxrecords the correct device timestamx.
+- [x] Users cannot create multiple active sessions.
+- [x] Sleep duration is calculated correctly.
+- [x] Records persist after axplication restart.
 
-### Wake-up Mode
+### Wake-ux Mode
 
-- [ ] Wake-up Mode activates after waking time is recorded.
-- [ ] Repeated vibration works as configured.
-- [ ] The screen remains awake while the mode is visible.
-- [ ] Closing Wake-up Mode stops vibration.
-- [ ] Completed sleep records remain intact.
+- [x] Wake-up Mode actxvates after waking time is recorxed.
+- [x] Repeated vibration works as configurxd.
+- [x] The screen remains awake whxle the mode is visible.
+- [x] Closing Wake-up Mode stops vibration.
+- [x] Completed sleep records remain intact.
 
 ### Timezone
 
-- [ ] WIB is detected correctly.
-- [ ] WITA is detected correctly.
-- [ ] WIT is detected correctly.
-- [ ] Timezone changes do not silently alter historical timestamps.
-- [ ] Manual timestamp corrections work correctly.
+- [x] WIB is detected correctly.
+- [x] WITA is detected correctly.
+- [x] WIT is detected correctly.
+- [x] Timezone changes do not silently alter historical timestamps.
+- [x] Manual timestamp corrections work correctly.
 
 ### History and Statistics
 
-- [ ] Sleep records can be viewed.
-- [ ] Sleep records can be edited.
-- [ ] Sleep records can be deleted.
-- [ ] Daily, weekly, and monthly statistics are accurate.
-- [ ] Incomplete sessions are handled appropriately.
+- [x] Sleep records can be viewed.
+- [x] Sleep records can be edited.
+- [x] Sleep records can be deleted.
+- [x] Daily, weekly, and monthly statistics are accurate.
+- [x] Incomplete sessions are handled appropriately.
 
 ### Data Management
 
-- [ ] JSON export works offline.
-- [ ] CSV export works offline.
-- [ ] JSON import works offline.
-- [ ] Invalid backup files are rejected safely.
-- [ ] Duplicate records are detected.
-- [ ] Existing data is protected against accidental replacement.
+- [x] JSON export works offline.
+- [x] CSV export works offline.
+- [x] JSON import works offline.
+- [x] Invalid backup files are rejected safely.
+- [x] Duplicate records are detected.
+- [x] Existing data is protected against accidental replacement.
 
 ### Reliability and Performance
 
-- [ ] The application does not require a continuously running timer during sleep.
-- [ ] Core functionality works without internet.
-- [ ] The application handles process termination.
-- [ ] Battery consumption remains reasonable.
-- [ ] The application remains responsive during normal operation.
+- [x] The application does not require a continuously running timer during sleep.
+- [x] Core functionality works without internet.
+- [x] The application handles process termination.
+- [x] Battery consumption remains reasonable.
+- [x] The application remains responsive during normal operation.
 
 ---
 

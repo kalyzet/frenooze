@@ -216,6 +216,18 @@ class SettingsPage extends StatelessWidget {
                 title: Text('Tentang Frenooze'),
                 subtitle: Text('Versi 1.0.0'),
               ),
+              ListTile(
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    'doksli/images/kalyzet.png',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                title: const Text('Kalyzet Team'),
+              ),
             ],
           );
         },
