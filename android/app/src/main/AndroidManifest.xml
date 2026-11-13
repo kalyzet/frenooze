@@ -2,7 +2,7 @@
     <!-- Required for Wake-up Mode vibration (PRD §4.4.2). -->
     <uses-permission android:name="android.permission.VIBRATE"/>
     <application
-        android:label="frenooze"
+        android:label="Frenooze"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

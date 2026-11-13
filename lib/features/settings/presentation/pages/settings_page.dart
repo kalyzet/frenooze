@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/widgets/app_logo.dart';
 import '../../../data_management/domain/entities/export_format.dart';
 import '../../../data_management/domain/entities/import_preview.dart';
 import '../../../data_management/domain/entities/import_strategy.dart';
@@ -148,7 +149,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pengaturan')),
+      appBar: AppBar(title: const LogoTitle('Pengaturan')),
       body: BlocConsumer<DataManagementBloc, DataManagementState>(
         listener: (BuildContext context, DataManagementState state) {
           switch (state) {

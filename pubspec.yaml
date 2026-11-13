@@ -68,12 +68,14 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
+  assets:
+    - doksli/icons/icon.png
 
 flutter_launcher_icons:
   android: true
   ios: false
   image_path: doksli/icons/icon.png
-  adaptive_icon_background: '#101315'
+  adaptive_icon_background: '#E5E5E1'
   adaptive_icon_foreground: doksli/icons/icon.png
 
   # To add assets to your application, add an assets section, like this:

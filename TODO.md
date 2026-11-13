@@ -1,7 +1,7 @@
 # Frenooze — Development TODO
 
 Referensi: `PRD.md` (roadmap §11, acceptance §12), `DESIGN.md`, `ARCHITECTURE.md`
-Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasang & berjalan di device 22071219CG; uji E2E menunggu HP dibuka
+Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasang & berjalan di device 22071219CG; label "Frenooze", logo header, dan bg ikon #E5E5E1 terverifikasi dari APK; uji E2E menunggu HP dibuka + izin input injection MIUI
 
 ## Legend
 
@@ -215,3 +215,4 @@ Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasan
 | 2026-11-12 | 5 | Statistics code selesai: StatisticsCalculator (circular mean, exclude invalid/active), GetSleepStatistics, StatisticsBloc, UI fl_chart + metrik + range 7/30/90/all + empty state, wiring refresh saat selesai. Analyze bersih, test lulus, APK terbangun. |
 | 2026-11-12 | 6 | Export & Import code selesai: BackupJsonCodec v1 + BackupCsvCodec, Export/Preview/Apply use cases, DataManagementBloc, Settings UI (save/share, preview dialog merge/replace), wiring refresh History+Statistics saat import. Analyze bersih, test lulus, APK terbangun. |
 | 2026-11-12 | 7 | Fase 7 berjalan: unit test (12 file: durasi, start/end, statistik, timezone, codec JSON/CSV, export/import) + widget test (dashboard, navigasi 4 tab, riwayat, statistik) lulus; `flutter analyze` bersih; app icon dari `doksli/icons/icon.png` via flutter_launcher_icons; APK debug terpasang & jalan di device 22071219CG (tidak ada crash). Sisa: E2E device (butuh layar HP terbuka + izin input injection MIUI), integration test, release build. |
+| 2026-11-13 | 7 | Permintaan UI: label launcher `frenooze` → **Frenooze** (AndroidManifest); widget `LogoTitle`/`AppLogo` (`lib/core/widgets/app_logo.dart`, bg `#E5E5E1`) dipasang di 8 AppBar (dashboard, riwayat, detail, edit, statistik, settings); `flutter_launcher_icons.adaptive_icon_background` → `#E5E5E1` (PNG tidak diubah). Rebuild+install di device; verifikasi APK: `aapt2 dump badging` → `application-label:'Frenooze'` (semua locale), `color/ic_launcher_background = #ffe5e5e1`, screenshot Dashboard tampil logo+judul. Sisa: verifikasi header halaman lain via UI device (input injection masih ditolak MIUI). |

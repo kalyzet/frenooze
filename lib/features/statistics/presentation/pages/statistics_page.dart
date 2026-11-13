@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../domain/entities/sleep_statistics.dart';
 import '../../domain/entities/statistics_range.dart';
 import '../bloc/statistics_bloc.dart';
@@ -40,7 +41,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Statistik')),
+      appBar: AppBar(title: const LogoTitle('Statistik')),
       body: BlocConsumer<StatisticsBloc, StatisticsState>(
         listener: (BuildContext context, StatisticsState state) {
           if (state is StatisticsFailure) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../../sleep_session/domain/entities/sleep_session.dart';
 import '../../../sleep_session/domain/entities/time_accuracy.dart';
 import '../../../sleep_session/domain/services/duration_calculator.dart';
@@ -33,7 +34,7 @@ class HistoryDetailPage extends StatelessWidget {
       builder: (BuildContext context, HistoryState state) {
         if (state is! HistoryLoaded || state.detail == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Detail Sesi')),
+            appBar: AppBar(title: const LogoTitle('Detail Sesi')),
             body: const Center(child: CircularProgressIndicator()),
           );
         }
@@ -44,7 +45,7 @@ class HistoryDetailPage extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Detail Sesi'),
+            title: const LogoTitle('Detail Sesi'),
             actions: <Widget>[
               IconButton(
                 tooltip: 'Edit sesi',

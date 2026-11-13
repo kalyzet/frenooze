@@ -4,6 +4,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/time/timestamp_converter.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../../sleep_session/domain/entities/sleep_session.dart';
 import '../bloc/history_bloc.dart';
 
@@ -84,7 +85,7 @@ class _HistoryEditPageState extends State<HistoryEditPage> {
             });
           }
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Sesi')),
+            appBar: AppBar(title: const LogoTitle('Edit Sesi')),
             body: const Center(child: CircularProgressIndicator()),
           );
         },
@@ -115,7 +116,7 @@ class _HistoryEditPageState extends State<HistoryEditPage> {
         builder: (BuildContext context, HistoryState state) {
           final bool busy = state is HistoryLoaded && state.busy;
           return Scaffold(
-            appBar: AppBar(title: const Text('Edit Sesi')),
+            appBar: AppBar(title: const LogoTitle('Edit Sesi')),
             body: Form(
               child: ListView(
                 padding: const EdgeInsets.all(AppSpacing.md),

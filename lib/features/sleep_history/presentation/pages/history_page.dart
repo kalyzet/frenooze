@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../../sleep_session/domain/entities/sleep_session.dart';
 import '../../../sleep_session/domain/entities/time_accuracy.dart';
 import '../../../sleep_session/domain/services/duration_calculator.dart';
@@ -32,7 +33,7 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Riwayat Tidur')),
+      appBar: AppBar(title: const LogoTitle('Riwayat Tidur')),
       body: BlocConsumer<HistoryBloc, HistoryState>(
         listener: (BuildContext context, HistoryState state) {
           if (state is HistoryLoaded && state.detailId != null) {

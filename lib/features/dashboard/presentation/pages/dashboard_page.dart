@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../../sleep_session/domain/entities/sleep_session.dart';
 import '../../../sleep_session/domain/services/duration_calculator.dart';
 import '../../../sleep_session/presentation/bloc/sleep_session_bloc.dart';
@@ -76,7 +77,7 @@ class _DashboardPageState extends State<DashboardPage> {
       },
       builder: (BuildContext context, SleepSessionState state) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Frenooze')),
+          appBar: AppBar(title: const LogoTitle('Frenooze')),
           body: Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
