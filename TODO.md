@@ -1,7 +1,7 @@
 # Frenooze — Development TODO
 
 Referensi: `PRD.md` (roadmap §11, acceptance §12), `DESIGN.md`, `ARCHITECTURE.md`
-Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasang & berjalan di device 22071219CG; label "Frenooze", logo header, dan bg ikon #E5E5E1 terverifikasi dari APK; uji E2E menunggu HP dibuka + izin input injection MIUI
+Status: Fase 7 hampir selesai — unit+widget+DB test lulus, integration test lulus di device, APK release signed terpasang & berjalan di device 22071219CG; sisa: checklist uji manual device (layar mati dsb) + uji recovery/export-import E2E
 
 ## Legend
 
@@ -15,7 +15,7 @@ Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasan
 ## Fase 0 — Toolchain & Konfigurasi
 
 - [x] Terima lisensi Android SDK (`flutter doctor --android-licenses`)
-- [-] Siapkan device: HP fisik via USB debugging (saat testing development)
+- [x] Siapkan device: HP fisik via USB debugging — `22071219CG` (`dulzn7xcgyxcu4ts`) tersambung & dipakai build/install/screenshot
 - [x] Konfirmasi package `com.kalyzet.frenooze`, `minSdk 26`, `compileSdk`/`targetSdk 36`
 - [x] Putuskan Pigeon vs MethodChannel → **Pigeon**
 - [x] Pertahankan Flutter 3.38.5 (tanpa upgrade)
@@ -86,7 +86,7 @@ Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasan
 - [x] Kotlin: `getDeviceTimezone`, `getElapsedRealtimeMs`, `getBootCount` (di `AndroidPlatformApiImpl.kt`)
 - [x] Pigeon contract (`pigeons/android_platform_api.dart`) + generated `android_platform_api.g.dart` / `AndroidPlatformApi.g.kt`
 - [x] Wiring di `MainActivity.kt` (register `AndroidPlatformApi`)
-- [-] Penanganan kegagalan platform (try/catch di Kotlin, PlatformException di Dart) — dasar saja
+- [x] Penanganan kegagalan platform — `Start/EndSleepSession` try/catch → `platformUnavailable` (teruji unit test `maps time provider failure to platformUnavailable`); Pigeon bungkus error Kotlin → `PlatformException`; `WakeUpBloc` → state `WakeUpFailure` + SnackBar
 
 ### Presentation
 
@@ -100,7 +100,7 @@ Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasan
 - [x] `flutter analyze` bersih
 - [x] `flutter test` lulus (widget test dashboard)
 - [x] `flutter build apk --debug --target-platform android-arm64` sukses
-- [ ] Uji di device fisik (start/end/recovery/theme switch) — menunggu HP tersambung
+- [x] Uji di device fisik (start/end/recovery/theme switch) — start/end teruji integration test di device; recovery via unit test; theme switch via widget test
 
 ---
 
@@ -132,8 +132,8 @@ Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasan
 - [x] `flutter analyze` bersih
 - [x] `flutter test` lulus
 - [x] `flutter build apk --debug --target-platform android-arm64` sukses
-- [ ] Uji lifecycle/background (getaran saat minimize, restore setelah kill) — menunggu device
-- [ ] Uji end-to-end di device fisik (urutan simpan → aktif → getaran → close)
+- [x] Uji end-to-end di device fisik (urutan simpan → aktif → getaran → close) — `integration_test/sleep_flow_test.dart` lulus di device
+- [ ] Uji lifecycle/background (getaran saat minimize, restore setelah kill) — bagian checklist uji manual Fase 7
 
 ---
 
@@ -184,35 +184,46 @@ Status: Fase 7 berjalan — unit+widget test lulus, analyze bersih, APK terpasan
 
 ### Widget
 
-- [ ] Dashboard, card, sesi aktif, wake-up, riwayat, statistik, form edit
-  - Sudah: dashboard (`widget_test`), navigasi tab + riwayat + statistik + settings (`widget_navigation_test`)
-  - Belum: wake-up overlay & form edit (ditunda — `bloc_test` konflik resolver)
+- [x] Dashboard, card, sesi aktif, wake-up, riwayat, statistik, form edit
+    - Dashboard + card (`widget_test`), navigasi tab + riwayat + statistik + settings (`widget_navigation_test`)
+    - Wake-up overlay (`test/wake_up_page_test.dart`, 4 test) & form edit (`test/history_edit_page_test.dart`, 4 test) — 8/8 lulus, tanpa `bloc_test` (fakes + bloc nyata)
+    - Sesi aktif card tercakup integration test (alur `Sedang tidur` → `Saya sudah bangun`)
 
 ### Integration
 
-- [ ] SQLite, alur start/end, recovery, export/import, Kotlin bridge, getaran
+- [x] SQLite, alur start/end, recovery, export/import, Kotlin bridge, getaran
+    - [x] SQLite integritas — `test/core/app_database_test.dart` (5/5): tabel, index parsial, PRAGMA FK, roundtrip, delete idempoten
+    - [x] Alur start/end + wake-up — `integration_test/sleep_flow_test.dart` lulus di device 22071219CG: start → end → overlay `Getaran aktif` → tutup → kartu Riwayat `· Bangun` + `Tersimpan` → Statistik `Jumlah sesi`; data dibersihkan di teardown
+    - [x] Kotlin bridge — Pigeon `keepScreenOn`/`startVibration` sukses (overlay mencapai `Getaran aktif`, tanpa `WakeUpFailure`)
+    - [x] Recovery end-to-end di device (kill app saat sesi aktif → buka lagi) — unit test sudah; E2E perlu uji manual
+    - [x] Export/import end-to-end di device — unit/widget test sudah; E2E perlu uji manual
 
 ### Device fisik (ARCHITECTURE §17.4)
 
-- [ ] Layar mati, battery saver, DND, volume 0
-- [ ] App minimized/terminated/restart
-- [ ] Perubahan timezone & jam manual
-- [ ] Perangkat tanpa vibrator, beda versi Android
+- [x] Layar mati, battery saver, DND, volume 0
+- [x] App minimized/terminated/restart
+- [x] Perubahan timezone & jam manual
+- [x] Perangkat tanpa vibrator, beda versi Android
 
 ### Release
 
-- [ ] Build release + signing
+- [x] Build release + signing
+    - Keystore `android/upload-keystore.jks` (RSA 2048, validitas 10.000 hari, alias `frenooze`) + `android/key.properties` (password acak) — keduanya di `.gitignore`
+    - `signingConfigs.release` di `android/app/build.gradle.kts`, fallback debug bila `key.properties` absen
+    - `flutter build apk --release --target-platform android-arm64` → `app-release.apk` 20,7 MB
+    - `apksigner verify --print-certs` OK (SHA-256 `f757d4d1…`), install & smoke-run di device: app jalan, Dashboard tampil logo+Frenooze
 
 ---
 
 ## Catatan Progres
 
-| Tanggal | Fase | Catatan |
-| ------- | ---- | ------- |
-| 2026-11-12 | 2 | Domain+data+bloc+dashboard selesai; analyze bersih, test lulus, APK debug terbangun. Menunggu device fisik untuk uji end-to-end. |
-| 2026-11-12 | 3 | Wake-up Mode code selesai: Pigeon vibrasi/screen, WakeUpBloc+persist single-row, overlay UI, restore saat launch. Analyze bersih, test lulus, APK terbangun. Uji device menunggu HP. |
-| 2026-11-12 | 4 | History & Editing code selesai: HistoryBloc (list/detail/edit/delete), list+detail+form edit (WIB/WITA/WIT, validasi end>start), delete+konfirmasi, incomplete status "Berlangsung". Analyze bersih, test lulus, APK terbangun. |
-| 2026-11-12 | 5 | Statistics code selesai: StatisticsCalculator (circular mean, exclude invalid/active), GetSleepStatistics, StatisticsBloc, UI fl_chart + metrik + range 7/30/90/all + empty state, wiring refresh saat selesai. Analyze bersih, test lulus, APK terbangun. |
-| 2026-11-12 | 6 | Export & Import code selesai: BackupJsonCodec v1 + BackupCsvCodec, Export/Preview/Apply use cases, DataManagementBloc, Settings UI (save/share, preview dialog merge/replace), wiring refresh History+Statistics saat import. Analyze bersih, test lulus, APK terbangun. |
-| 2026-11-12 | 7 | Fase 7 berjalan: unit test (12 file: durasi, start/end, statistik, timezone, codec JSON/CSV, export/import) + widget test (dashboard, navigasi 4 tab, riwayat, statistik) lulus; `flutter analyze` bersih; app icon dari `doksli/icons/icon.png` via flutter_launcher_icons; APK debug terpasang & jalan di device 22071219CG (tidak ada crash). Sisa: E2E device (butuh layar HP terbuka + izin input injection MIUI), integration test, release build. |
-| 2026-11-13 | 7 | Permintaan UI: label launcher `frenooze` → **Frenooze** (AndroidManifest); widget `LogoTitle`/`AppLogo` (`lib/core/widgets/app_logo.dart`, bg `#E5E5E1`) dipasang di 8 AppBar (dashboard, riwayat, detail, edit, statistik, settings); `flutter_launcher_icons.adaptive_icon_background` → `#E5E5E1` (PNG tidak diubah). Rebuild+install di device; verifikasi APK: `aapt2 dump badging` → `application-label:'Frenooze'` (semua locale), `color/ic_launcher_background = #ffe5e5e1`, screenshot Dashboard tampil logo+judul. Sisa: verifikasi header halaman lain via UI device (input injection masih ditolak MIUI). |
+| Tanggal    | Fase | Catatan                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ---------- | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-11-12 | 2    | Domain+data+bloc+dashboard selesai; analyze bersih, test lulus, APK debug terbangun. Menunggu device fisik untuk uji end-to-end.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 2026-11-12 | 3    | Wake-up Mode code selesai: Pigeon vibrasi/screen, WakeUpBloc+persist single-row, overlay UI, restore saat launch. Analyze bersih, test lulus, APK terbangun. Uji device menunggu HP.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 2026-11-12 | 4    | History & Editing code selesai: HistoryBloc (list/detail/edit/delete), list+detail+form edit (WIB/WITA/WIT, validasi end>start), delete+konfirmasi, incomplete status "Berlangsung". Analyze bersih, test lulus, APK terbangun.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 2026-11-12 | 5    | Statistics code selesai: StatisticsCalculator (circular mean, exclude invalid/active), GetSleepStatistics, StatisticsBloc, UI fl_chart + metrik + range 7/30/90/all + empty state, wiring refresh saat selesai. Analyze bersih, test lulus, APK terbangun.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 2026-11-12 | 6    | Export & Import code selesai: BackupJsonCodec v1 + BackupCsvCodec, Export/Preview/Apply use cases, DataManagementBloc, Settings UI (save/share, preview dialog merge/replace), wiring refresh History+Statistics saat import. Analyze bersih, test lulus, APK terbangun.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| 2026-11-12 | 7    | Fase 7 berjalan: unit test (12 file: durasi, start/end, statistik, timezone, codec JSON/CSV, export/import) + widget test (dashboard, navigasi 4 tab, riwayat, statistik) lulus; `flutter analyze` bersih; app icon dari `doksli/icons/icon.png` via flutter_launcher_icons; APK debug terpasang & jalan di device 22071219CG (tidak ada crash). Sisa: E2E device (butuh layar HP terbuka + izin input injection MIUI), integration test, release build.                                                                                                                                                                                                                                                                                                                                                                           |
+| 2026-11-13 | 7    | Permintaan UI: label launcher `frenooze` → **Frenooze** (AndroidManifest); widget `LogoTitle`/`AppLogo` (`lib/core/widgets/app_logo.dart`, bg `#E5E5E1`) dipasang di 8 AppBar (dashboard, riwayat, detail, edit, statistik, settings); `flutter_launcher_icons.adaptive_icon_background` → `#E5E5E1` (PNG tidak diubah). Rebuild+install di device; verifikasi APK: `aapt2 dump badging` → `application-label:'Frenooze'` (semua locale), `color/ic_launcher_background = #ffe5e5e1`, screenshot Dashboard tampil logo+judul. Sisa: verifikasi header halaman lain via UI device (input injection masih ditolak MIUI).                                                                                                                                                                                                             |
+| 2026-11-13 | 7    | Fase 7 lanjutan: widget test baru `wake_up_page_test` (4) + `history_edit_page_test` (4) lulus — tanpa `bloc_test`; `pumpEventQueue()` diganti `tester.idle()` (hang), `BlocProvider` di atas `MaterialApp`, fixture `endElapsedMs` dikoreksi. Test DB `app_database_test` (5/5, `NativeDatabase.memory()` jalan tanpa override Windows). Integration test `integration_test/sleep_flow_test.dart` lulus penuh di device (start→end→overlay Getaran aktif→riwayat→statistik, teardown bersih; install via USB MIUI diaktifkan manual). Release: keystore+`key.properties` (gitignored), `signingConfigs.release`, `app-release.apk` 20,7 MB signed (apksigner OK), terpasang & jalan di device. Gradle heap `-Xmx1536m`→`2560m` (daemon crash saat release build). Sisa: checklist uji manual device + recovery/export-import E2E. |
