@@ -398,6 +398,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
         maxY: yMax,
         barTouchData: BarTouchData(
           touchTooltipData: BarTouchTooltipData(
+            fitInsideHorizontally: true,
+            fitInsideVertically: true,
             getTooltipItem: (BarChartGroupData group, int groupIndex,
                 BarChartRodData rod, int rodIndex) {
               return BarTooltipItem(
@@ -447,6 +449,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
         maxY: yMax,
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
+            fitInsideHorizontally: true,
+            fitInsideVertically: true,
             getTooltipItems: (List<LineBarSpot> spots) {
               return spots.map((LineBarSpot spot) {
                 return LineTooltipItem(
