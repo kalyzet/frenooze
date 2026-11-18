@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frenooze/app.dart';
@@ -113,23 +114,28 @@ SleepSession _sampleSession({
   String id = 's1',
   DateTime? startedAtUtc,
   DateTime? endedAtUtc,
+  Duration duration = const Duration(hours: 7),
 }) {
-  final DateTime start = startedAtUtc ?? DateTime.utc(2026, 11, 11, 15);
+  // Default start is 12 hours ago so the session always lands inside the
+  // default 7-day statistics window, whenever the suite runs.
+  final DateTime start = startedAtUtc ??
+      DateTime.now().toUtc().subtract(const Duration(hours: 12));
+  final DateTime end = endedAtUtc ?? start.add(duration);
   return SleepSession(
     id: id,
     startedAtUtc: start,
-    endedAtUtc: endedAtUtc ?? start.add(const Duration(hours: 7)),
+    endedAtUtc: end,
     startTimezone: 'Asia/Jakarta',
     endTimezone: 'Asia/Jakarta',
     startOffsetMinutes: 420,
     endOffsetMinutes: 420,
     startElapsedMs: 0,
-    endElapsedMs: 7 * 3600 * 1000,
+    endElapsedMs: end.difference(start).inMilliseconds,
     startBootCount: 1,
     endBootCount: 1,
     accuracy: TimeAccuracy.ok,
     createdAtUtc: start,
-    updatedAtUtc: start.add(const Duration(hours: 7)),
+    updatedAtUtc: end,
   );
 }
 
@@ -212,6 +218,23 @@ Future<void> _goToTab(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _scrollIntoView(WidgetTester tester, Finder finder) async {
+  await tester.scrollUntilVisible(
+    finder,
+    300,
+    scrollable: find
+        .descendant(
+          of: find.descendant(
+            of: find.byType(StatisticsPage),
+            matching: find.byType(ListView),
+          ),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('Settings shows export and import actions', (tester) async {
     await _pumpApp(tester);
@@ -268,21 +291,110 @@ void main() {
     expect(find.text('Total tidur'), findsOneWidget);
     expect(find.text('Jumlah sesi'), findsOneWidget);
 
-    await tester.scrollUntilVisible(
-      find.textContaining('Bukan diagnosis medis.'),
-      300,
-      scrollable: find
-          .descendant(
-            of: find.descendant(
-              of: find.byType(StatisticsPage),
-              matching: find.byType(ListView),
-            ),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-    await tester.pumpAndSettle();
+    await _scrollIntoView(tester, find.textContaining('Bukan diagnosis medis.'));
     expect(find.textContaining('Bukan diagnosis medis.'), findsOneWidget);
+  });
+
+  testWidgets('Statistics daily chart shows unique hour labels',
+      (tester) async {
+    await _pumpApp(
+      tester,
+      sessions: <SleepSession>[
+        _sampleSession(
+          id: 'long',
+          duration: const Duration(hours: 8, minutes: 54),
+        ),
+      ],
+    );
+    await _goToTab(tester, 'Statistik');
+    await _scrollIntoView(tester, find.textContaining('Tren durasi harian'));
+
+    // maxY used to be raw 10.235h: fl_chart drew both the 10h tick and
+    // the max tick, each formatted "10j". The snapped axis shows 10j
+    // exactly once and adds 12j as the new top label.
+    expect(find.text('10j'), findsOneWidget);
+    expect(find.text('12j'), findsOneWidget);
+  });
+
+  testWidgets('Statistics chart toggle switches bar and line chart',
+      (tester) async {
+    await _pumpApp(
+      tester,
+      sessions: <SleepSession>[_sampleSession()],
+    );
+    await _goToTab(tester, 'Statistik');
+    await _scrollIntoView(tester, find.textContaining('Tren durasi harian'));
+
+    expect(find.byType(BarChart), findsOneWidget);
+    expect(find.byType(LineChart), findsNothing);
+
+    await tester.tap(find.byIcon(Icons.show_chart_rounded));
+    await tester.pumpAndSettle();
+    expect(find.byType(LineChart), findsOneWidget);
+    expect(find.byType(BarChart), findsNothing);
+
+    await tester.tap(find.byIcon(Icons.bar_chart_rounded));
+    await tester.pumpAndSettle();
+    expect(find.byType(BarChart), findsOneWidget);
+    expect(find.byType(LineChart), findsNothing);
+  });
+
+  testWidgets('Statistics chart filters bottom labels above 7 points',
+      (tester) async {
+    // 10 consecutive local days: with 30-day range the trend has 10
+    // points, so bottomInterval = 2 and only even indices keep a label.
+    final DateTime nowLocal = DateTime.now();
+    final DateTime todayLocal = DateTime(
+      nowLocal.year,
+      nowLocal.month,
+      nowLocal.day,
+    );
+    String dayNumber(int daysAgo) =>
+        '${todayLocal.subtract(Duration(days: daysAgo)).day}';
+
+    await _pumpApp(
+      tester,
+      sessions: List<SleepSession>.generate(10, (int i) {
+        // i = 0 is the oldest (9 days ago), i = 9 is today; 13:00 local
+        // start keeps every session on its own local calendar day.
+        final DateTime startLocal = todayLocal
+            .subtract(Duration(days: 9 - i))
+            .add(const Duration(hours: 13));
+        return _sampleSession(
+          id: 'd$i',
+          startedAtUtc: startLocal.subtract(const Duration(minutes: 420)),
+          duration: const Duration(hours: 7),
+        );
+      }),
+    );
+    await _goToTab(tester, 'Statistik');
+    await tester.tap(find.text('30 hari'));
+    await tester.pumpAndSettle();
+    await _scrollIntoView(tester, find.textContaining('Tren durasi harian'));
+
+    // Scope to the chart card so the "Jumlah sesi" metric (a bare
+    // number) cannot collide with a day-of-month label.
+    final Finder chartCard = find.ancestor(
+      of: find.text('Tren durasi harian'),
+      matching: find.byType(Card),
+    );
+
+    // Even indices (0, 2, 4, 6, 8) = days 9, 7, 5, 3, 1 ago.
+    for (final int daysAgo in <int>[9, 7, 5, 3, 1]) {
+      expect(
+        find.descendant(of: chartCard, matching: find.text(dayNumber(daysAgo))),
+        findsOneWidget,
+        reason: 'day label ${daysAgo}d ago should be visible',
+      );
+    }
+    // Odd indices (1, 3, 5, 7, 9) are filtered out.
+    for (final int daysAgo in <int>[8, 6, 4, 2, 0]) {
+      expect(
+        find.descendant(of: chartCard, matching: find.text(dayNumber(daysAgo))),
+        findsNothing,
+        reason: 'day label ${daysAgo}d ago should be filtered out',
+      );
+    }
   });
 
   testWidgets('Bottom navigation switches tabs', (tester) async {

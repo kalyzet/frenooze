@@ -21,6 +21,7 @@ class StatisticsPage extends StatefulWidget {
 
 class _StatisticsPageState extends State<StatisticsPage> {
   StatisticsRange _range = StatisticsRange.days7;
+  _ChartType _chartType = _ChartType.bar;
 
   @override
   void initState() {
@@ -284,106 +285,269 @@ class _StatisticsPageState extends State<StatisticsPage> {
         ? trend.sublist(trend.length - 30)
         : trend;
 
+    // Whole-hour axis step; maxY snaps up to that step so the top label
+    // never rounds to the same integer as its neighbour (duplicate "10j").
+    final double yRaw = _maxHours(visible);
+    final double yInterval = _leftInterval(yRaw);
+    final double yMax = (yRaw / yInterval).ceil() * yInterval;
+    final int bottomInterval = _bottomInterval(visible.length);
+    final bool reduceMotion = MediaQuery.disableAnimationsOf(context);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Text(
-              'Tren durasi harian${trend.length > visible.length ? ' (30 hari terakhir)' : ''}',
-              style: AppTypography.heading3,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    'Tren durasi harian'
+                    '${trend.length > visible.length ? ' (30 hari terakhir)' : ''}',
+                    style: AppTypography.heading3,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                _chartTypeToggle(),
+              ],
             ),
             const SizedBox(height: AppSpacing.sm),
             SizedBox(
               height: 200,
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: _maxHours(visible),
-                  barTouchData: BarTouchData(
-                    touchTooltipData: BarTouchTooltipData(
-                      getTooltipItem: (BarChartGroupData group, int groupIndex,
-                          BarChartRodData rod, int rodIndex) {
-                        final DailySleepPoint point = visible[group.x];
-                        return BarTooltipItem(
-                          '${_formatDuration(point.duration)}\n'
-                          '${_shortDate(point.localDate)}',
-                          AppTypography.caption.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        );
-                      },
+              child: AnimatedSwitcher(
+                duration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale:
+                          Tween<double>(begin: 0.97, end: 1.0).animate(animation),
+                      child: child,
                     ),
-                  ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 36,
-                        getTitlesWidget: (double value, TitleMeta meta) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Text(
-                              '${value.toStringAsFixed(0)}j',
-                              style: AppTypography.caption,
-                              textAlign: TextAlign.right,
-                            ),
-                          );
-                        },
+                  );
+                },
+                child: _chartType == _ChartType.bar
+                    ? SizedBox.expand(
+                        child: _barChart(
+                          visible,
+                          yMax,
+                          yInterval,
+                          bottomInterval,
+                          reduceMotion,
+                        ),
+                      )
+                    : SizedBox.expand(
+                        child: _lineChart(
+                          visible,
+                          yMax,
+                          yInterval,
+                          bottomInterval,
+                          reduceMotion,
+                        ),
                       ),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 28,
-                        interval: _bottomInterval(visible.length),
-                        getTitlesWidget: (double value, TitleMeta meta) {
-                          final int index = value.round();
-                          if (index < 0 || index >= visible.length) {
-                            return const SizedBox.shrink();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              '${visible[index].localDate.day}',
-                              style: AppTypography.caption,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  gridData: const FlGridData(show: false),
-                  borderData: FlBorderData(show: false),
-                  barGroups: <BarChartGroupData>[
-                    for (int i = 0; i < visible.length; i++)
-                      BarChartGroupData(
-                        x: i,
-                        barRods: <BarChartRodData>[
-                          BarChartRodData(
-                            toY: visible[i].duration.inMinutes / 60.0,
-                            width: visible.length > 14 ? 6 : 14,
-                            borderRadius: BorderRadius.circular(4),
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _chartTypeToggle() {
+    return SegmentedButton<_ChartType>(
+      showSelectedIcon: false,
+      style: const ButtonStyle(visualDensity: VisualDensity.compact),
+      segments: <ButtonSegment<_ChartType>>[
+        const ButtonSegment<_ChartType>(
+          value: _ChartType.bar,
+          icon: Icon(Icons.bar_chart_rounded, size: 18),
+          tooltip: 'Grafik batang',
+        ),
+        const ButtonSegment<_ChartType>(
+          value: _ChartType.line,
+          icon: Icon(Icons.show_chart_rounded, size: 18),
+          tooltip: 'Grafik garis',
+        ),
+      ],
+      selected: <_ChartType>{_chartType},
+      onSelectionChanged: (Set<_ChartType> selection) {
+        if (selection.isNotEmpty) {
+          setState(() => _chartType = selection.first);
+        }
+      },
+    );
+  }
+
+  Widget _barChart(
+    List<DailySleepPoint> visible,
+    double yMax,
+    double yInterval,
+    int bottomInterval,
+    bool reduceMotion,
+  ) {
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        minY: 0,
+        maxY: yMax,
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipItem: (BarChartGroupData group, int groupIndex,
+                BarChartRodData rod, int rodIndex) {
+              return BarTooltipItem(
+                _tooltipText(visible, group.x),
+                AppTypography.caption.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              );
+            },
+          ),
+        ),
+        titlesData: _titlesData(visible, yInterval, bottomInterval),
+        gridData: const FlGridData(show: false),
+        borderData: FlBorderData(show: false),
+        barGroups: <BarChartGroupData>[
+          for (int i = 0; i < visible.length; i++)
+            BarChartGroupData(
+              x: i,
+              barRods: <BarChartRodData>[
+                BarChartRodData(
+                  toY: visible[i].duration.inMinutes / 60.0,
+                  width: visible.length > 14 ? 6 : 14,
+                  borderRadius: BorderRadius.circular(4),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ],
+            ),
+        ],
+      ),
+      duration: reduceMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+
+  Widget _lineChart(
+    List<DailySleepPoint> visible,
+    double yMax,
+    double yInterval,
+    int bottomInterval,
+    bool reduceMotion,
+  ) {
+    return LineChart(
+      LineChartData(
+        minY: 0,
+        maxY: yMax,
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipItems: (List<LineBarSpot> spots) {
+              return spots.map((LineBarSpot spot) {
+                return LineTooltipItem(
+                  _tooltipText(visible, spot.spotIndex),
+                  AppTypography.caption.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ),
+        titlesData: _titlesData(visible, yInterval, bottomInterval),
+        gridData: const FlGridData(show: false),
+        borderData: FlBorderData(show: false),
+        lineBarsData: <LineChartBarData>[
+          LineChartBarData(
+            spots: <FlSpot>[
+              for (int i = 0; i < visible.length; i++)
+                FlSpot(i.toDouble(), visible[i].duration.inMinutes / 60.0),
+            ],
+            isCurved: true,
+            barWidth: 3,
+            color: Theme.of(context).colorScheme.primary,
+            dotData: FlDotData(show: visible.length <= 14),
+            belowBarData: BarAreaData(
+              show: true,
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withValues(alpha: 0.15),
+            ),
+          ),
+        ],
+      ),
+      duration: reduceMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+
+  FlTitlesData _titlesData(
+    List<DailySleepPoint> visible,
+    double yInterval,
+    int bottomInterval,
+  ) {
+    return FlTitlesData(
+      show: true,
+      topTitles: const AxisTitles(
+        sideTitles: SideTitles(showTitles: false),
+      ),
+      rightTitles: const AxisTitles(
+        sideTitles: SideTitles(showTitles: false),
+      ),
+      leftTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 36,
+          interval: yInterval,
+          getTitlesWidget: (double value, TitleMeta meta) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Text(
+                '${value.toStringAsFixed(0)}j',
+                style: AppTypography.caption,
+                textAlign: TextAlign.right,
+              ),
+            );
+          },
+        ),
+      ),
+      bottomTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 28,
+          interval: bottomInterval.toDouble(),
+          getTitlesWidget: (double value, TitleMeta meta) {
+            final int index = value.round();
+            if (index < 0 ||
+                index >= visible.length ||
+                index % bottomInterval != 0) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                '${visible[index].localDate.day}',
+                style: AppTypography.caption,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  String _tooltipText(List<DailySleepPoint> visible, int index) {
+    final DailySleepPoint point = visible[index];
+    return '${_formatDuration(point.duration)}\n'
+        '${_shortDate(point.localDate)}';
   }
 
   static double _maxHours(List<DailySleepPoint> points) {
@@ -397,7 +561,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     return max * 1.15;
   }
 
-  static double? _bottomInterval(int length) {
+  static int _bottomInterval(int length) {
     if (length <= 7) {
       return 1;
     }
@@ -405,6 +569,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
       return 2;
     }
     if (length <= 30) {
+      return 5;
+    }
+    return 10;
+  }
+
+  static double _leftInterval(double maxHours) {
+    if (maxHours <= 12) {
+      return 2;
+    }
+    if (maxHours <= 30) {
       return 5;
     }
     return 10;
@@ -432,3 +606,5 @@ class _Metric {
   final String value;
   final IconData icon;
 }
+
+enum _ChartType { bar, line }

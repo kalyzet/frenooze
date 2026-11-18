@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frenooze/core/time/clock_provider.dart';
 import 'package:frenooze/features/sleep_session/domain/entities/sleep_session.dart';
 import 'package:frenooze/features/sleep_session/domain/entities/time_accuracy.dart';
 import 'package:frenooze/features/sleep_session/domain/repositories/sleep_session_repository.dart';
@@ -29,6 +30,15 @@ class _Repo implements SleepSessionRepository {
   Future<void> delete(String id) async {}
 }
 
+class _FixedClock implements ClockProvider {
+  _FixedClock(this._now);
+
+  final DateTime _now;
+
+  @override
+  DateTime nowUtc() => _now;
+}
+
 void main() {
   test('GetSleepStatistics aggregates from repository', () async {
     final DateTime start = DateTime.utc(2026, 11, 11, 15);
@@ -48,8 +58,10 @@ void main() {
       updatedAtUtc: start.add(const Duration(hours: 7)),
     );
 
-    final GetSleepStatistics useCase =
-        GetSleepStatistics(repository: _Repo(<SleepSession>[session]));
+    final GetSleepStatistics useCase = GetSleepStatistics(
+      repository: _Repo(<SleepSession>[session]),
+      clock: _FixedClock(DateTime.utc(2026, 11, 11, 22)),
+    );
 
     final stats = await useCase(StatisticsRange.days7);
 
