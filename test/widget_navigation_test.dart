@@ -235,6 +235,30 @@ Future<void> _scrollIntoView(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// Mirrors the history card's date label so tests can locate a specific
+/// card by its rendered date.
+String _historyDateLabel(DateTime utc) {
+  final DateTime shifted = DateTime.fromMillisecondsSinceEpoch(
+    utc.millisecondsSinceEpoch,
+    isUtc: true,
+  ).toLocal();
+  const List<String> months = <String>[
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'Mei',
+    'Jun',
+    'Jul',
+    'Agu',
+    'Sep',
+    'Okt',
+    'Nov',
+    'Des',
+  ];
+  return '${shifted.day} ${months[shifted.month - 1]} ${shifted.year}';
+}
+
 void main() {
   testWidgets('Settings shows export and import actions', (tester) async {
     await _pumpApp(tester);
@@ -270,6 +294,82 @@ void main() {
 
     expect(find.textContaining('Tersimpan'), findsWidgets);
     expect(find.textContaining('Mulai'), findsWidgets);
+  });
+
+  testWidgets('History groups sessions under recent and older headers',
+      (tester) async {
+    final DateTime nowUtc = DateTime.now().toUtc();
+    final DateTime recentStart = nowUtc.subtract(const Duration(hours: 12));
+    final DateTime oldStart = nowUtc.subtract(const Duration(days: 30));
+    await _pumpApp(
+      tester,
+      sessions: <SleepSession>[
+        _sampleSession(id: 'recent', startedAtUtc: recentStart),
+        _sampleSession(id: 'old', startedAtUtc: oldStart),
+      ],
+    );
+    await _goToTab(tester, 'Riwayat');
+
+    expect(find.text('7 Hari Terakhir'), findsOneWidget);
+    expect(find.text('Lainnya'), findsOneWidget);
+    expect(find.textContaining('Tersimpan'), findsNWidgets(2));
+
+    final double recentHeaderY =
+        tester.getTopLeft(find.text('7 Hari Terakhir')).dy;
+    final double olderHeaderY = tester.getTopLeft(find.text('Lainnya')).dy;
+    expect(olderHeaderY, greaterThan(recentHeaderY));
+
+    // Recent card sits between the two dividers; old card below "Lainnya".
+    final Finder recentDate = find.text(_historyDateLabel(recentStart));
+    final Finder oldDate = find.text(_historyDateLabel(oldStart));
+    expect(recentDate, findsOneWidget);
+    expect(oldDate, findsOneWidget);
+    expect(
+      tester.getTopLeft(recentDate).dy,
+      inInclusiveRange(recentHeaderY, olderHeaderY),
+    );
+    expect(tester.getTopLeft(oldDate).dy, greaterThan(olderHeaderY));
+  });
+
+  testWidgets('History hides older section when every session is recent',
+      (tester) async {
+    await _pumpApp(
+      tester,
+      sessions: <SleepSession>[_sampleSession(id: 'a')],
+    );
+    await _goToTab(tester, 'Riwayat');
+
+    expect(find.text('7 Hari Terakhir'), findsOneWidget);
+    expect(find.text('Lainnya'), findsNothing);
+  });
+
+  testWidgets('History cutoff keeps the last seven calendar days together',
+      (tester) async {
+    final DateTime nowUtc = DateTime.now().toUtc();
+    final DateTime onCutoff = nowUtc.subtract(const Duration(days: 6));
+    final DateTime beforeCutoff = nowUtc.subtract(const Duration(days: 7));
+    await _pumpApp(
+      tester,
+      sessions: <SleepSession>[
+        _sampleSession(id: 'on-cutoff', startedAtUtc: onCutoff),
+        _sampleSession(id: 'before-cutoff', startedAtUtc: beforeCutoff),
+      ],
+    );
+    await _goToTab(tester, 'Riwayat');
+
+    // Exactly six days ago stays under "7 Hari Terakhir"; seven days ago
+    // falls into "Lainnya" — one session per section proves the split.
+    expect(find.text('7 Hari Terakhir'), findsOneWidget);
+    expect(find.text('Lainnya'), findsOneWidget);
+    final double olderHeaderY = tester.getTopLeft(find.text('Lainnya')).dy;
+    expect(
+      tester.getTopLeft(find.text(_historyDateLabel(onCutoff))).dy,
+      lessThan(olderHeaderY),
+    );
+    expect(
+      tester.getTopLeft(find.text(_historyDateLabel(beforeCutoff))).dy,
+      greaterThan(olderHeaderY),
+    );
   });
 
   testWidgets('Statistics empty state when no valid sessions', (tester) async {

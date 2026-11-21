@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/time/clock_provider.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../sleep_session/domain/entities/sleep_session.dart';
 import '../../../sleep_session/domain/entities/time_accuracy.dart';
@@ -16,8 +17,16 @@ import 'history_detail_page.dart';
 /// continuously running clock. An active session is listed with an explicit
 /// "Berlangsung" status so incomplete records stay visible and recoverable
 /// (PRD §7.4) without being mistaken for completed ones.
+///
+/// The list is grouped under section dividers: sessions started today or
+/// within the previous six calendar days under "7 Hari Terakhir", everything
+/// older under "Lainnya" — the same window as `StatisticsRange.days7`.
 class HistoryPage extends StatefulWidget {
-  const HistoryPage({super.key});
+  const HistoryPage({super.key, this.clock = const SystemClockProvider()});
+
+  /// Clock used to split sessions into the two sections; injectable so
+  /// widget tests can pin "now".
+  final ClockProvider clock;
 
   @override
   State<HistoryPage> createState() => _HistoryPageState();
@@ -55,6 +64,10 @@ class _HistoryPageState extends State<HistoryPage> {
             if (state.sessions.isEmpty) {
               return _emptyView(context);
             }
+            final List<_HistoryEntry> entries = _entriesFor(
+              state.sessions,
+              widget.clock.nowUtc(),
+            );
             return RefreshIndicator(
               onRefresh: () async {
                 context
@@ -66,15 +79,17 @@ class _HistoryPageState extends State<HistoryPage> {
               },
               child: ListView.builder(
                 padding: const EdgeInsets.all(AppSpacing.md),
-                itemCount: state.sessions.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final SleepSession session = state.sessions[index];
-                  return _HistoryCard(
-                    session: session,
-                    onTap: () => context
-                        .read<HistoryBloc>()
-                        .add(OpenSessionRequested(session.id)),
-                  );
+                itemCount: entries.length,
+                itemBuilder: (BuildContext context, int index) =>
+                    switch (entries[index]) {
+                  final _SessionCardEntry card => _HistoryCard(
+                        session: card.session,
+                        onTap: () => context
+                            .read<HistoryBloc>()
+                            .add(OpenSessionRequested(card.session.id)),
+                      ),
+                  final _SectionHeaderEntry header =>
+                    _SectionHeader(title: header.title),
                 },
               ),
             );
@@ -84,6 +99,66 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
     );
   }
+
+  /// Splits [sessions] (newest first) into the labelled sections, preserving
+  /// order. Empty sections are omitted entirely.
+  static List<_HistoryEntry> _entriesFor(
+    List<SleepSession> sessions,
+    DateTime nowUtc,
+  ) {
+    final List<SleepSession> recent = <SleepSession>[];
+    final List<SleepSession> older = <SleepSession>[];
+    for (final SleepSession session in sessions) {
+      if (_isWithinRecentDays(session, nowUtc)) {
+        recent.add(session);
+      } else {
+        older.add(session);
+      }
+    }
+    return <_HistoryEntry>[
+      if (recent.isNotEmpty) ...<_HistoryEntry>[
+        const _SectionHeaderEntry('7 Hari Terakhir'),
+        for (final SleepSession session in recent)
+          _SessionCardEntry(session),
+      ],
+      if (older.isNotEmpty) ...<_HistoryEntry>[
+        const _SectionHeaderEntry('Lainnya'),
+        for (final SleepSession session in older) _SessionCardEntry(session),
+      ],
+    ];
+  }
+
+  /// True when [session] starts today or within the previous six calendar
+  /// days, evaluated in the session's own recorded UTC offset — the same
+  /// window as `StatisticsRange.days7` (statistics_calculator.dart, the
+  /// `range.days` cutoff).
+  static bool _isWithinRecentDays(SleepSession session, DateTime nowUtc) {
+    final DateTime startLocal = _shiftByOffset(
+      session.startedAtUtc,
+      session.startOffsetMinutes,
+    );
+    final DateTime nowLocal = _shiftByOffset(
+      nowUtc,
+      session.startOffsetMinutes,
+    );
+    final DateTime cutoff = DateTime(
+      nowLocal.year,
+      nowLocal.month,
+      nowLocal.day,
+    ).subtract(const Duration(days: 6));
+    final DateTime startDay = DateTime(
+      startLocal.year,
+      startLocal.month,
+      startLocal.day,
+    );
+    return !startDay.isBefore(cutoff);
+  }
+
+  static DateTime _shiftByOffset(DateTime utc, int offsetMinutes) =>
+      DateTime.fromMillisecondsSinceEpoch(
+        utc.millisecondsSinceEpoch + offsetMinutes * 60000,
+        isUtc: true,
+      );
 
   Widget _emptyView(BuildContext context) {
     return Center(
@@ -301,6 +376,57 @@ class _StatusChip extends StatelessWidget {
       child: Text(
         label,
         style: AppTypography.caption.copyWith(color: color),
+      ),
+    );
+  }
+}
+
+/// One row of the history list: either a section divider or a session card.
+sealed class _HistoryEntry {
+  const _HistoryEntry();
+}
+
+/// Divider row: category label on the left, hairline rule filling the rest
+/// of the row (DESIGN §7.1 grouping).
+final class _SectionHeaderEntry extends _HistoryEntry {
+  const _SectionHeaderEntry(this.title);
+
+  final String title;
+}
+
+/// A [_HistoryCard] row for one session.
+final class _SessionCardEntry extends _HistoryEntry {
+  const _SessionCardEntry(this.session);
+
+  final SleepSession session;
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        top: AppSpacing.md,
+        bottom: AppSpacing.xs,
+      ),
+      child: Row(
+        children: <Widget>[
+          Text(
+            title,
+            style: AppTypography.caption.copyWith(
+              color: Theme.of(context).hintColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Divider(color: Theme.of(context).dividerColor, height: 1),
+          ),
+        ],
       ),
     );
   }

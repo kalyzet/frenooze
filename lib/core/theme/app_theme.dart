@@ -145,6 +145,8 @@ abstract final class AppTheme {
         ),
       ),
       iconTheme: IconThemeData(color: textColor),
+      // Muted token for secondary UI text (e.g. section labels).
+      hintColor: mutedColor,
     );
   }
 }
